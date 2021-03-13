@@ -23,10 +23,19 @@ else:
 #subjects to analyse
 subjects_numbers = ["002", "019", "037"]
 
+#execution mode
+isOverwrite = False #overwrite all existing data units with newly generated ones
+isDialogeMode = True #manual mode with opens dialogs windows for example for manual cleaning
+
 # Band-pass filter limits
 bandpass_fmin = 0.5  # Hz
 bandpass_fmax = 50  # Hz
 nr_filt_cycles = 1 #nr of filter cycles
+
+# Cleaning
+reject_suject_config =  {"002": dict(eeg=200e-6),
+                         "019": dict(eeg=200e-6),
+                         "037": dict(eeg=200e-6)}
 
 fname = FileNames()
 
@@ -38,6 +47,9 @@ fname.add('subject_dir', '{subjects_dir}/{subject}')
 
 # Filenames for data files
 fname.add('filt', '{subject_dir}/run_{run:02d}-filt-{fmin}-{fmax}-raw_sss.fif')
+fname.add('cleaned', '{subject_dir}/raw-manual_clean.fif')
+# there seem to be problems with read anntoations in .csv format --> use .txt for now
+fname.add('cleanedTxt', '{subject_dir}/raw-manual_clean-annotations.txt')
 fname.add('ica', '{subject_dir}/{subject}-ica.fif')
 
 # Filenames for MNE reports

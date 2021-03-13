@@ -9,5 +9,5 @@ args = parser.parse_args()
 subject = args.subject
 print('Processing subject:', subject)
 
-makedirs(fname.reports_dir, exist_ok=False)
+makedirs(fname.reports_dir, exist_ok=True)
 makedirs(fname.subject_dir(subject=subject), exist_ok=True)
