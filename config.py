@@ -25,9 +25,10 @@ subjects_numbers = ["002", "019", "037"]
 
 #execution mode
 isOverwrite = False #overwrite all existing data units with newly generated ones
-isDialogeMode = True #manual mode with opens dialogs windows for example for manual cleaning
+isDialogeMode = False #manual mode with opens dialogs windows for example for manual cleaning
 
 # Band-pass filter limits
+#according to https://mne.tools/dev/auto_tutorials/preprocessing/plot_40_artifact_correction_ica.html
 bandpass_fmin = 0.5  # Hz
 bandpass_fmax = 50  # Hz
 nr_filt_cycles = 1 #nr of filter cycles
@@ -36,6 +37,12 @@ nr_filt_cycles = 1 #nr of filter cycles
 reject_suject_config =  {"002": dict(eeg=200e-6),
                          "019": dict(eeg=200e-6),
                          "037": dict(eeg=200e-6)}
+
+# ICA
+subject_ICA_channels =  {"002": [1, 8, 9],
+                         "019": dict(eeg=200e-6),
+                         "037": dict(eeg=200e-6)}
+
 
 fname = FileNames()
 

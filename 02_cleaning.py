@@ -7,9 +7,25 @@ import numpy as np
 
 
 ##cleaning to be done manually
+def manualCleaning():
+    print("Open subject", subject, " for cleaning")
+    fig = raw.plot(n_channels=len(raw.ch_names))
+    plt.show()
+
+    bad_ix = [i for i,a in enumerate(raw.annotations) if a['description']=="BAD_"]
+    print("Annotations: ", raw.annotations)
+    
+
+    #write file if overwrite mode or file does not exist
+    if isOverwrite or not os.path.isfile(f_cleanedTxt) or user_in == "y":
+        raw.annotations[bad_ix].save(f_cleanedTxt)
+
+    
+    # f_cleanedFif = fname.cleaned(subject=subject)
+    # raw.save(f_cleanedFif, overwrite=isOverwrite)y
+    
 
 #Iterate over subjects
-
 for subject in subjects_numbers:
     try:
         raw = mne.io.read_raw_fif(
@@ -19,10 +35,10 @@ for subject in subjects_numbers:
         print("Filtered data for subject ", subject, "not found. First run 01_preprocessing")
 
     ### 1. Manual Cleaning (if needed)
+    f_cleanedTxt = fname.cleanedTxt(subject=subject)
+
     ###Check which mode for cleaning
     if isDialogeMode:
-        f_cleanedTxt = fname.cleanedTxt(subject=subject)
-
         if os.path.isfile(f_cleanedTxt) and not isOverwrite:
             user_in = input("Annotations for subject: " + str(subject) + " exist. Clean manual again ? (y/n)")
             if user_in == "y":    
@@ -57,23 +73,15 @@ for subject in subjects_numbers:
 
     #from matplotlib import pyplot as plt
     # compare
-    #plt.plot([0,:])
-    mne.viz.plot_compare_evokeds({'raw':epochs.average(),'clean':epochs_manual.average(),'thresh':epochs_thresh.average()},picks="Cz")
+    fig_evoked = mne.viz.plot_compare_evokeds({'Raw:':epochs.average(),'Manual Clean:':epochs_manual.average(),'Peak-To-Peak:':epochs_thresh.average()},picks="Pz", show=False)
 
-
-def manualCleaning():
-    print("Open subject", subject, " for cleaning")
-    fig = raw.plot(n_channels=len(raw.ch_names))
-    plt.show()
-
-    bad_ix = [i for i,a in enumerate(raw.annotations) if a['description']=="BAD_"]
-    print("Annotations: ", raw.annotations)
-    
-
-    #write file if overwrite mode or file does not exist
-    if isOverwrite or not os.path.isfile(f_cleanedTxt) or user_in == "y":
-        raw.annotations[bad_ix].save(f_cleanedTxt)
-
-    
-    # f_cleanedFif = fname.cleaned(subject=subject)
-    # raw.save(f_cleanedFif, overwrite=isOverwrite)
+        # Append PDF plots to report
+    with mne.open_report(fname.report(subject=subject)) as report:
+        report.add_figs_to_section(
+            fig_evoked,
+            captions=["Evoked potential:"],
+            section='Sensor-level',
+            replace=True
+        )
+        report.save(fname.report_html(subject=subject), overwrite=True,
+                    open_browser=False)
