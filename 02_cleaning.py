@@ -80,7 +80,7 @@ for subject in subjects_numbers:
         report.add_figs_to_section(
             fig_evoked,
             captions=["Evoked potential:"],
-            section='Sensor-level',
+            section='Preprocess',
             replace=True
         )
         report.save(fname.report_html(subject=subject), overwrite=True,

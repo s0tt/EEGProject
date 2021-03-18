@@ -46,28 +46,14 @@ with mne.open_report(fname.report(subject=subject)) as report:
     report.add_figs_to_section(
         figs_before,
         captions=["PSD before filtering:"],
-        section='Sensor-level',
+        section='Preprocess',
         replace=True
     )
     report.add_figs_to_section(
         figs_after,
         captions=["PSD after filtering:"],
-        section='Sensor-level',
+        section='Preprocess',
         replace=True
     )
-    # report.add_slider_to_section(
-    #     figs_before,
-    #     ['PSD before filtering: run %d' % i for i in range(1, nr_filt_cycles+1)],
-    #     title='PSD before filtering',
-    #     section='Sensor-level',
-    #     replace=True
-    # )
-    # report.add_slider_to_section(
-    #     figs_after,
-    #     ['PSD after filtering: run %d' % i for i in range(1, nr_filt_cycles+1)],
-    #     title='PSD after filtering',
-    #     section='Sensor-level',
-    #     replace=True
-    # )
     report.save(fname.report_html(subject=subject), overwrite=True,
                 open_browser=False)

@@ -39,9 +39,10 @@ reject_suject_config =  {"002": dict(eeg=200e-6),
                          "037": dict(eeg=200e-6)}
 
 # ICA
-subject_ICA_channels =  {"002": [1, 8, 9],
-                         "019": dict(eeg=200e-6),
-                         "037": dict(eeg=200e-6)}
+nr_ica_components = 20
+subject_ICA_channels =  {"002": {1: "Eye component"},
+                         "019": {1: "Eye component"},
+                         "037": {0: "Eye component"}}
 
 
 fname = FileNames()
@@ -57,7 +58,7 @@ fname.add('filt', '{subject_dir}/run_{run:02d}-filt-{fmin}-{fmax}-raw_sss.fif')
 fname.add('cleaned', '{subject_dir}/raw-manual_clean.fif')
 # there seem to be problems with read anntoations in .csv format --> use .txt for now
 fname.add('cleanedTxt', '{subject_dir}/raw-manual_clean-annotations.txt')
-fname.add('ica', '{subject_dir}/{subject}-ica.fif')
+fname.add('ica', '{subject_dir}/{subject}-removed{bads}-ica.fif')
 
 # Filenames for MNE reports
 fname.add('reports_dir', '{study_path}/reports/')

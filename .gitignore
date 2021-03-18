@@ -4,6 +4,8 @@ local/
 test.py
 reports/
 subjects/
+test
+test.ipynb
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
