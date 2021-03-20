@@ -8,10 +8,7 @@ from matplotlib import pyplot as plt
 from utils import *
 
 # Handle command line arguments
-parser = argparse.ArgumentParser(description=__doc__)
-parser.add_argument('subject', metavar='sub###', help='The subject to process')
-args = parser.parse_args()
-subject = args.subject
+subject = handleSubjectArg()
 
 # Load raw data
 raw = readRawFif(fname.filt(subject=subject, run=1, fmin=bandpass_fmin, fmax=bandpass_fmax),
@@ -24,11 +21,12 @@ ica = mne.preprocessing.ICA(n_components=nr_ica_components, random_state=97, max
 
 #ica specific high-pass filter with ~1hz to remove slow drifts
 # according to: https://mne.tools/dev/auto_tutorials/preprocessing/plot_40_artifact_correction_ica.html
+# and https://mne.tools/stable/generated/mne.preprocessing.ICA.html 
 filt_raw = raw.copy()
 filt_raw.load_data().filter(l_freq=1., h_freq=None)
 
 ica.fit(filt_raw, verbose=True)
-ica = add_ica_info(raw, ica)
+#ica = add_ica_info(raw, ica)
 
 #Apply ICA to original raw data after components are found
 f_ica = fname.ica(subject=subject, bads = str(list(subject_ICA_channels[subject].keys())))
@@ -57,25 +55,5 @@ epochs.average().plot(show=False)
 fig_overlay = ica.plot_overlay(raw,exclude=list(subject_ICA_channels[subject].keys()), show=False)
 
 
-with mne.open_report(fname.report(subject=subject)) as report:
-        report.add_figs_to_section(
-            fig_components,
-            captions=["ICA Component overview:"],
-            section='Preprocess',
-            replace=True
-        )
-        # report.add_figs_to_section(
-        #     fig_reject_components,
-        #     captions=["Bad component %d"%i for i in range(len(fig_reject_components))],
-        #     section='Sensor-level',
-        #     replace=True
-        # )
-        report.add_figs_to_section(
-            fig_overlay,
-            captions=["Overlay original/reconstructed:"],
-            section='Preprocess',
-            replace=True
-        )
-        report.save(fname.report_html(subject=subject), overwrite=True,
-                    open_browser=False)
-
+addFigure(subject, fig_components, "ICA Component overview:", "Preprocess")
+addFigure(subject, fig_overlay, "Overlay original/reconstructed:", "Preprocess")

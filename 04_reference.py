@@ -8,10 +8,7 @@ from matplotlib import pyplot as plt
 from utils import *
 
 # Handle command line arguments
-parser = argparse.ArgumentParser(description=__doc__)
-parser.add_argument('subject', metavar='sub###', help='The subject to process')
-args = parser.parse_args()
-subject = args.subject
+subject = handleSubjectArg()
 
 raw = readRawFif(fname.ica(subject=subject, bads = str(list(subject_ICA_channels[subject].keys()))))
 #Rereference to average as recommended here:
@@ -27,20 +24,14 @@ raw = readRawFif(fname.ica(subject=subject, bads = str(list(subject_ICA_channels
 # --> Still use average reference projection as it spreads forwards modeling error evenly
 
 raw.set_eeg_reference('average', projection=True)
-fig, axes = plt.subplots(2,1)
+raw.save(fname.reference(subject=subject))
+
+fig, axes = plt.subplots(1, 2)
 for title, proj, axis in zip(['Original', 'Average'], [False, True], axes):
     axis = raw.plot(proj=proj, n_channels=len(raw))
     # make room for title
     axis.subplots_adjust(top=0.9)
-    axis.suptitle('{} reference'.format(title), size='xx-large', weight='bold')
+    axis.suptitle('{} reference'.format(title))
 
-with mne.open_report(fname.report(subject=subject)) as report:
-        report.add_figs_to_section(
-            fig,
-            captions=["Comparison original/ average referenced:"],
-            section='Preprocess',
-            replace=True
-        )
-        report.save(fname.report_html(subject=subject), overwrite=True,
-                    open_browser=False)
 
+addFigure(subject, fig, "Comparison original/ average referenced:", "Preprocess")

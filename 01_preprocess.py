@@ -4,8 +4,8 @@ import ccs_eeg_semesterproject
 import ccs_eeg_utils
 from mne_bids import (BIDSPath, read_raw_bids)
 from matplotlib import pyplot as plt
-from utils import readRawData
-from config import fname, bandpass_fmin, bandpass_fmax, n_jobs, nr_filt_cycles
+from utils import *
+from config import *
 
 #from config import (fname, bandpass_fmin, bandpass_fmax, n_jobs)
 
@@ -13,12 +13,7 @@ from config import fname, bandpass_fmin, bandpass_fmax, n_jobs, nr_filt_cycles
 mne.set_log_level('INFO')
 
 # Handle command line arguments
-parser = argparse.ArgumentParser(description=__doc__)
-parser.add_argument('subject', metavar='sub###', help='The subject to process')
-args = parser.parse_args()
-subject = args.subject
-print('Processing subject:', subject)
-
+subject = handleSubjectArg()
 
 figs_before = []
 figs_after = []
@@ -42,18 +37,5 @@ for run in range(1, nr_filt_cycles+1):
     raw_filt.save(f, overwrite=True)
 
 # Append PDF plots to report
-with mne.open_report(fname.report(subject=subject)) as report:
-    report.add_figs_to_section(
-        figs_before,
-        captions=["PSD before filtering:"],
-        section='Preprocess',
-        replace=True
-    )
-    report.add_figs_to_section(
-        figs_after,
-        captions=["PSD after filtering:"],
-        section='Preprocess',
-        replace=True
-    )
-    report.save(fname.report_html(subject=subject), overwrite=True,
-                open_browser=False)
+addFigure(subject, figs_before, "PSD before filtering:", "Preprocess")
+addFigure(subject, figs_after, "PSD after filtering:", "Preprocess")

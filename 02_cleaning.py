@@ -4,6 +4,7 @@ import config
 from config import *
 import matplotlib.pyplot as plt
 import numpy as np
+from utils import *
 
 
 ##cleaning to be done manually
@@ -75,13 +76,4 @@ for subject in subjects_numbers:
     # compare
     fig_evoked = mne.viz.plot_compare_evokeds({'Raw:':epochs.average(),'Manual Clean:':epochs_manual.average(),'Peak-To-Peak:':epochs_thresh.average()},picks="Pz", show=False)
 
-        # Append PDF plots to report
-    with mne.open_report(fname.report(subject=subject)) as report:
-        report.add_figs_to_section(
-            fig_evoked,
-            captions=["Evoked potential:"],
-            section='Preprocess',
-            replace=True
-        )
-        report.save(fname.report_html(subject=subject), overwrite=True,
-                    open_browser=False)
+    addFigure(subject, fig_evoked, "Evoked potential:", "Preprocess")
