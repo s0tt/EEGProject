@@ -11,6 +11,8 @@ subject = handleSubjectArg()
 
 def getCodedEpochs(raw):
     evts,evts_dict = mne.events_from_annotations(raw)
+    evt_plot = mne.viz.plot_events(evts, event_id=evts_dict, show=False)
+    addFigure(subject, evt_plot, "Event overview", "Analyse")
     event_coding = config["event_coding"]
     coding_mapping = {}
     for coding_key in list(event_coding.keys()):
@@ -44,28 +46,25 @@ fig_evokeds = mne.viz.plot_compare_evokeds(average, picks="Pz")
 
 # plot difference wave
 difference_wave.plot_joint(times=[0.15], title='Rare - Frequent', picks="eeg")
-evt_plot = mne.viz.plot_events(evts, event_id=evts_dict, show=False)
 
+addFigure(subject, fig_evokeds, "Evokeds for different conditions", "Analyse")
 
-addFigure(subject, evt_plot, "Event overview", "Analyse")
-addFigure(subject, fig_evokeds, "Evokeds for different conditions")
-
-plt.show()
+#plt.show()
 
 
 #RQ: On which ERP-peaks do we find major difference between the conditions
 #statistically test via linear regression
 # name of predictors + intercept
-# predictor_vars = ['face a - face b', 'phase-coherence', 'intercept']
+predictor_vars = ['face a - face b', 'phase-coherence', 'intercept']
 
 # # create design matrix
-# epochs_all = readEpochs(raw, "all")
-# design = epochs_all.metadata[['phase-coherence', 'face']].copy()
-# design['face a - face b'] = np.where(design['face'] == 'A', 1, -1)
-# design['intercept'] = 1
-# design = design[predictor_vars]
+meta = epochs.metadata.head()
+design = epochs.metadata[['phase-coherence', 'face']].copy()
+design['face a - face b'] = np.where(design['face'] == 'A', 1, -1)
+design['intercept'] = 1
+design = design[predictor_vars]
 
-# reg = linear_regression(epochs_all,
-#                         design_matrix=design,
-#                         names=predictor_vars)
+reg = linear_regression(epochs_all,
+                        design_matrix=design,
+                        names=predictor_vars)
 
