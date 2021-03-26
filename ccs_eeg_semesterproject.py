@@ -2,16 +2,16 @@
 import os
 import mne
 import numpy as np
-import pandas as pdw
+import pandas as pd
 from mne_bids import (BIDSPath, read_raw_bids)
 
 def _get_filepath(bids_root,subject_id):
     bids_path = BIDSPath(subject=subject_id,task="P3",session="P3",
-                     datatype='eeg', suffix='eeg',
+                     datatype='eeg', suffix="eeg",
                      root=bids_root)
     # this is not a bids-conform file format, but a derivate/extension. Therefore we have to hack a bit
     # Depending on path structure, this might push a warning.
-    fn = bids_path.fpath.__str__()[0:-3]
+    fn = bids_path.fpath.__str__()[0:-7]
     return fn
 
 def load_precomputed_ica(bids_root,subject_id):
@@ -61,4 +61,4 @@ def load_precomputed_badData(bids_root,subject_id):
     #badChannels = [int(b) for b in badChannels]
     return annotations,badChannels
 
-
+load_precomputed_badData("local/bids", "002")

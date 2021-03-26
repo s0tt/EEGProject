@@ -37,7 +37,7 @@ def readEventCoding():
     oddBallIds = []
     normalLetterIds = []
 
-    with open(f_eventCodeFile) as f:
+    with open(fname.eventCodes) as f:
         data = json.load(f)
 
     enc_dict = data["value"]["Levels"]

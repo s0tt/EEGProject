@@ -1,7 +1,7 @@
 import mne
 #from config import fname, bandpass_fmin, bandpass_fmax, n_jobs, nr_filt_cycles, subjects_numbers
 import config
-from config import *
+from config import config, fname
 import matplotlib.pyplot as plt
 import numpy as np
 from utils import *
@@ -27,20 +27,15 @@ def manualCleaning():
     
 
 #Iterate over subjects
-for subject in subjects_numbers:
-    try:
-        raw = mne.io.read_raw_fif(
-            fname.filt(subject=subject, run=1, fmin=bandpass_fmin, fmax=bandpass_fmax),
-            preload=False)
-    except FileNotFoundError:
-        print("Filtered data for subject ", subject, "not found. First run 01_preprocessing")
+for subject in config["subjects_numbers"]:
+    raw = readRawFif(fname.filt(subject=subject, run=1, fmin=config["bandpass_fmin"], fmax=config["bandpass_fmax"]), preload=False)
 
     ### 1. Manual Cleaning (if needed)
     f_cleanedTxt = fname.cleanedTxt(subject=subject)
 
     ###Check which mode for cleaning
-    if isDialogeMode:
-        if os.path.isfile(f_cleanedTxt) and not isOverwrite:
+    if config["isDialogeMode"]:
+        if os.path.isfile(f_cleanedTxt) and not config["isOverwrite"]:
             user_in = input("Annotations for subject: " + str(subject) + " exist. Clean manual again ? (y/n)")
             if user_in == "y":    
                 manualCleaning()
@@ -52,14 +47,13 @@ for subject in subjects_numbers:
         annotations = mne.read_annotations(f_cleanedTxt)
         raw.annotations.append(annotations.onset,annotations.duration,annotations.description)
 
-        if isDialogeMode:
+        if config["isDialogeMode"]:
             #Sanity check: interactive mode show loaded annotations
             fig = raw.plot(n_channels=len(raw.ch_names))
             plt.show()
         
         #interpolate bad channels if there exist some
         if len(raw.info['bads']) != 0:
-            raw.set_montage('standard_1020',match_case=False)
             raw.interpolate_bads()
 
 
@@ -69,11 +63,10 @@ for subject in subjects_numbers:
     event_dict_stim=dict((k, event_dict[k]) for k in keys if k in event_dict)
     epochs = mne.Epochs(raw,events,event_dict_stim,tmin=-0.1,tmax=1,reject_by_annotation=False)
     epochs_manual = mne.Epochs(raw,events,event_dict_stim,tmin=-0.1,tmax=1,reject_by_annotation=True)
-    reject_criteria =  reject_suject_config[subject]
+    reject_criteria =  dict(eeg=config["reject_subject_config"][subject]*(10**-6))
     epochs_thresh = mne.Epochs(raw,events,event_dict_stim,tmin=-0.1,tmax=1,reject=reject_criteria,reject_by_annotation=False)
 
     #from matplotlib import pyplot as plt
     # compare
     fig_evoked = mne.viz.plot_compare_evokeds({'Raw:':epochs.average(),'Manual Clean:':epochs_manual.average(),'Peak-To-Peak:':epochs_thresh.average()},picks="Pz", show=False)
-
     addFigure(subject, fig_evoked, "Evoked potential:", "Preprocess")

@@ -5,7 +5,7 @@ import ccs_eeg_utils
 from mne_bids import (BIDSPath, read_raw_bids)
 from matplotlib import pyplot as plt
 from utils import *
-from config import *
+from config import config, fname
 
 #from config import (fname, bandpass_fmin, bandpass_fmax, n_jobs)
 
@@ -25,7 +25,7 @@ raw = readRawData(subject_id=subject)
 
 for run in range(1, nr_filt_cycles+1):
     raw_filt = raw.copy().filter(
-            bandpass_fmin, bandpass_fmax, l_trans_bandwidth='auto',
+            config["bandpass_fmin"], config["bandpass_fmax"], l_trans_bandwidth='auto',
             h_trans_bandwidth='auto', filter_length='auto', phase='zero',
             fir_window='hamming', fir_design='firwin', n_jobs=n_jobs)
 
@@ -33,7 +33,7 @@ for run in range(1, nr_filt_cycles+1):
     figs_before.append(raw.plot_psd(show=False))
     figs_after.append(raw_filt.plot_psd(show=False))
     f = fname.filt(subject=subject, run=run,
-                   fmin=bandpass_fmin, fmax=bandpass_fmax)
+                   fmin=config["bandpass_fmin"], fmax=config["bandpass_fmax"])
     raw_filt.save(f, overwrite=True)
 
 # Append PDF plots to report
