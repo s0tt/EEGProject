@@ -2,7 +2,7 @@ import argparse
 import mne
 from ccs_eeg_semesterproject import *
 import ccs_eeg_utils
-from config import *
+from config import config, fname, n_jobs
 from mne_bids import (BIDSPath, read_raw_bids)
 from matplotlib import pyplot as plt
 from utils import *
@@ -23,8 +23,9 @@ subject = handleSubjectArg()
 # "If you plan to perform source modeling (either with EEG or combined EEG/MEG data), it is strongly recommended to use the average-reference-as-projection approach."
 # --> Still use average reference projection as it spreads forwards modeling error evenly
 def rereference(raw, subject):
-    #raw.set_eeg_reference('average', projection=True)
-    raw.set_eeg_reference(ref_channels=["P9", "P10"])
+    raw.set_eeg_reference('average', projection=True)
+    #TODO: Later compare several reference methods
+    #raw.set_eeg_reference(ref_channels=["P9", "P10"])
     raw.save(fname.reference(subject=subject), overwrite=True)
 
 if config["isPrecomputeMode"]:

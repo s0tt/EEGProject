@@ -2,7 +2,7 @@ import argparse
 import mne
 from ccs_eeg_semesterproject import *
 import ccs_eeg_utils
-from config import fname, config
+from config import config, fname, n_jobs
 from mne_bids import (BIDSPath, read_raw_bids)
 from matplotlib import pyplot as plt
 from utils import *

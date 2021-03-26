@@ -1,7 +1,5 @@
 import mne
-#from config import fname, bandpass_fmin, bandpass_fmax, n_jobs, nr_filt_cycles, subjects_numbers
-import config
-from config import config, fname
+from config import config, fname, n_jobs
 import matplotlib.pyplot as plt
 import numpy as np
 from utils import *

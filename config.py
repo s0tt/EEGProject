@@ -28,7 +28,7 @@ fname = FileNames()
 # Filenames for diretories
 fname.add('study_path', study_path)
 fname.add('archive_dir', '{study_path}/archive')
-fname.add('subjects_dir', '{study_path}/{task}/subjects'.format(task=config["task"]))
+fname.add('subjects_dir', '{study_path}/subjects/{task}'.format(study_path=study_path, task=config["task"]))
 fname.add('subject_dir', '{subjects_dir}/{subject}')
 
 # Filenames for data files
@@ -42,7 +42,7 @@ fname.add('events','{study_path}/local/bids/sub-{subject}/ses-P3/eeg/sub-{subjec
 fname.add('eventCodes','{study_path}/local/bids/task-P3_events.json')
 
 # Filenames for MNE reports
-fname.add('reports_dir', '{study_path}/reports/')
+fname.add('reports_dir', '{study_path}/reports/{task}'.format(study_path=study_path, task=config["task"]))
 fname.add('report', '{reports_dir}/{subject}-report.h5')
 fname.add('report_html', '{reports_dir}/{subject}-report.html')
 
