@@ -33,6 +33,18 @@ fig_rare_mean = epochs_rare.plot_image(combine='mean', picks="Pz", show=False, t
 epochs_freq = readEpochs(raw, "frequent")
 fig_frequent_mean = epochs_freq.plot_image(combine='mean', picks="Pz", show=False, title="Frequent Stimulus")
 
+average = {"rare": epochs_rare.average(), "frequent": epochs_freq.average()}
+
+mne.viz.plot_compare_evokeds(average, picks="Pz")
+
+#difference plot
+difference_wave = mne.combine_evoked([epochs_rare.average(),
+                                  epochs_freq.average()],
+                                 weights=[1, -1])
+
+# plot difference wave
+difference_wave.plot_joint(times=[0.15], title='Rare - Frequent')
+
 evt_plot = mne.viz.plot_events(evts, event_id=evts_dict, show=False)
 addFigure(subject, evt_plot, "Event overview", "Analyse")
 addFigure(subject, fig_rare_mean, "Mean of rare (oddball) stimulus", "Analyse")
@@ -40,4 +52,20 @@ addFigure(subject, fig_frequent_mean, "Mean of frequent stimulus", "Analyse")
 
 plt.show()
 
+
+#RQ: On which ERP-peaks do we find major difference between the conditions
+#statistically test via linear regression
+# name of predictors + intercept
+predictor_vars = ['face a - face b', 'phase-coherence', 'intercept']
+
+# create design matrix
+epochs_all = readEpochs(raw, "all")
+design = epochs_all.metadata[['phase-coherence', 'face']].copy()
+design['face a - face b'] = np.where(design['face'] == 'A', 1, -1)
+design['intercept'] = 1
+design = design[predictor_vars]
+
+reg = linear_regression(epochs_all,
+                        design_matrix=design,
+                        names=predictor_vars)
 

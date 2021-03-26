@@ -26,15 +26,32 @@ def rereference(raw, subject):
     #raw.set_eeg_reference('average', projection=True)
     raw.set_eeg_reference(ref_channels=["P9", "P10"])
     raw.save(fname.reference(subject=subject), overwrite=True)
-    
-    raw = readRawFif(fname.ica(subject=subject, bads = str(list(config["subject_ica_channels"][subject]))))
-    rereference(raw, subject)
-    fig, axes = plt.subplots(1, 2)
-    for title, proj, axis in zip(['Original', 'Average'], [False, True], axes):
-        axis = raw.plot(proj=proj, n_channels=len(raw))
-        # make room for title
-        axis.subplots_adjust(top=0.9)
-        axis.suptitle('{} reference'.format(title))
+
+    if config["isPrecomputeMode"]:
+        ### switch to precomputed semesterproject data
+        annotations,badChannels = load_precomputed_badData("local/bids", subject)
+        raw = readRawData(subject_id=subject)
+        raw.set_channel_types({'HEOG_left': 'eog', 'HEOG_right': 'eog',  'VEOG_lower': 'eog' })
+        raw.set_montage('standard_1020',match_case=False, on_missing="ignore")
+        raw.annotations.append(annotations.onset,annotations.duration,annotations.description)
+        raw.interpolate_bads(badChannels)
+        raw_filt = raw.filter(config["bandpass_fmin"], config["bandpass_fmax"], l_trans_bandwidth='auto',
+                h_trans_bandwidth='auto', filter_length='auto', phase='zero',
+                fir_window='hamming', fir_design='firwin', n_jobs=n_jobs)
+        ica, bad_components = load_precomputed_ica("local/bids", subject)
+        raw_ica = ica.apply(raw_filt, exclude=bad_components.astype(int))
+        rereference(raw_ica, subject)
+        print("Loaded precomputed project data for sub: ", subject)
+
+    else:
+        raw = readRawFif(fname.ica(subject=subject, bads = str(list(config["subject_ica_channels"][subject]))))
+        rereference(raw, subject)
+        fig, axes = plt.subplots(1, 2)
+        for title, proj, axis in zip(['Original', 'Average'], [False, True], axes):
+            axis = raw.plot(proj=proj, n_channels=len(raw))
+            # make room for title
+            axis.subplots_adjust(top=0.9)
+            axis.suptitle('{} reference'.format(title))
 
 
-    addFigure(subject, fig, "Comparison original/ average referenced:", "Preprocess")
+        addFigure(subject, fig, "Comparison original/ average referenced:", "Preprocess")
