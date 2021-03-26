@@ -5,6 +5,7 @@ import numpy as np
 from utils import *
 import os
 
+subject = handleSubjectArg
 
 ##cleaning to be done manually
 def manualCleaning(raw, subject):
@@ -30,58 +31,58 @@ def interpolateBads(raw):
         raw.interpolate_bads()
 
 #Iterate over subjects
-for subject in config["subjects_numbers"]:
-    f_filter = fname.filt(subject=subject, fmin=config["bandpass_fmin"], fmax=config["bandpass_fmax"])
 
-    #clean for all subjects where filter file is available
-    if os.path.isfile(f_filter):
-        raw = readRawFif(f_filter, preload=False)
+f_filter = fname.filt(subject=subject, fmin=config["bandpass_fmin"], fmax=config["bandpass_fmax"])
 
-        ### 1. Manual Cleaning (if needed)
-        f_cleanedTxt = fname.cleanedTxt(subject=subject)
+#clean for all subjects where filter file is available
+if os.path.isfile(f_filter):
+    raw = readRawFif(f_filter, preload=False)
 
-        ###Check which mode for cleaning
+    ### 1. Manual Cleaning (if needed)
+    f_cleanedTxt = fname.cleanedTxt(subject=subject)
+
+    ###Check which mode for cleaning
+    if config["isDialogeMode"]:
+        if os.path.isfile(f_cleanedTxt) and not config["isOverwrite"]:
+            user_in = input("Annotations for subject: " + str(subject) + " exist. Clean manual again ? (y/n)")
+            if user_in == "y":    
+                manualCleaning(raw, subject)
+        else:
+            manualCleaning(raw, subject)    
+
+    if config["isPrecomputeMode"]:
+        #just use provided cleaned data from semesterproject
+        annotations,badChannels = load_precomputed_badData("local/bids", subject)
+        raw.info['bads'] = badChannels
+        raw.annotations.append(annotations.onset,annotations.duration,annotations.description)
+        interpolateBads(raw)
+
+    elif os.path.isfile(f_cleanedTxt): #check for existence of annotations
+        annotations = mne.read_annotations(f_cleanedTxt)
+        raw.annotations.append(annotations.onset,annotations.duration,annotations.description)
+
         if config["isDialogeMode"]:
-            if os.path.isfile(f_cleanedTxt) and not config["isOverwrite"]:
-                user_in = input("Annotations for subject: " + str(subject) + " exist. Clean manual again ? (y/n)")
-                if user_in == "y":    
-                    manualCleaning(raw, subject)
-            else:
-                manualCleaning(raw, subject)    
+            #Sanity check: interactive mode show loaded annotations
+            fig = raw.plot(n_channels=len(raw.ch_names))
+            plt.show()
+        
+        #interpolate bad channels if there exist some
+        interpolateBads(raw)
 
-        if config["isPrecomputeMode"]:
-            #just use provided cleaned data from semesterproject
-            annotations,badChannels = load_precomputed_badData("local/bids", subject)
-            raw.info['bads'] = badChannels
-            raw.annotations.append(annotations.onset,annotations.duration,annotations.description)
-            interpolateBads(raw)
-
-        elif os.path.isfile(f_cleanedTxt): #check for existence of annotations
-            annotations = mne.read_annotations(f_cleanedTxt)
-            raw.annotations.append(annotations.onset,annotations.duration,annotations.description)
-
-            if config["isDialogeMode"]:
-                #Sanity check: interactive mode show loaded annotations
-                fig = raw.plot(n_channels=len(raw.ch_names))
-                plt.show()
-            
-            #interpolate bad channels if there exist some
-            interpolateBads(raw)
-
-        elif not config["isDialogeMode"]:
-            raise RuntimeError("No annotations for cleaning cloud be obtained. Either use interactive mode or provide a .txt file with annotatios")
+    elif not config["isDialogeMode"]:
+        raise RuntimeError("No annotations for cleaning cloud be obtained. Either use interactive mode or provide a .txt file with annotatios")
 
 
 
-        ### 3. generate report of compared epochs
-        events,event_dict = mne.events_from_annotations(raw)
-        keys = [e for e in event_dict.keys() if "stimulus" in e]
-        event_dict_stim=dict((k, event_dict[k]) for k in keys if k in event_dict)
-        epochs = mne.Epochs(raw,events,event_dict_stim,tmin=-0.1,tmax=1,reject_by_annotation=False)
-        epochs_manual = mne.Epochs(raw,events,event_dict_stim,tmin=-0.1,tmax=1,reject_by_annotation=True)
-        reject_criteria =  dict(eeg=config["reject_subject_config"][subject]*(10**-6))
-        epochs_thresh = mne.Epochs(raw,events,event_dict_stim,tmin=-0.1,tmax=1,reject=reject_criteria,reject_by_annotation=False)
-        raw.save(fname.cleaned(subject=subject))
+    ### 3. generate report of compared epochs
+    events,event_dict = mne.events_from_annotations(raw)
+    keys = [e for e in event_dict.keys() if "stimulus" in e]
+    event_dict_stim=dict((k, event_dict[k]) for k in keys if k in event_dict)
+    epochs = mne.Epochs(raw,events,event_dict_stim,tmin=-0.1,tmax=1,reject_by_annotation=False)
+    epochs_manual = mne.Epochs(raw,events,event_dict_stim,tmin=-0.1,tmax=1,reject_by_annotation=True)
+    reject_criteria =  dict(eeg=config["reject_subject_config"][subject]*(10**-6))
+    epochs_thresh = mne.Epochs(raw,events,event_dict_stim,tmin=-0.1,tmax=1,reject=reject_criteria,reject_by_annotation=False)
+    raw.save(fname.cleaned(subject=subject))
 
     #from matplotlib import pyplot as plt
     # compare
