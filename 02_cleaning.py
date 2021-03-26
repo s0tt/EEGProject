@@ -82,7 +82,11 @@ if os.path.isfile(f_filter):
     epochs_manual = mne.Epochs(raw,events,event_dict_stim,tmin=-0.1,tmax=1,reject_by_annotation=True)
     reject_criteria =  dict(eeg=config["reject_subject_config"][subject]*(10**-6))
     epochs_thresh = mne.Epochs(raw,events,event_dict_stim,tmin=-0.1,tmax=1,reject=reject_criteria,reject_by_annotation=False)
+
+    #generate new data/delete old if selected
     raw.save(fname.cleaned(subject=subject))
+    if config["isSpaceSaveMode"]:
+        os.remove(fname.filt(subject=subject, fmin=config["bandpass_fmin"], fmax=config["bandpass_fmax"]))
 
     #from matplotlib import pyplot as plt
     # compare

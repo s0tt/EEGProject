@@ -27,6 +27,8 @@ def rereference(raw, subject):
     #TODO: Later compare several reference methods
     #raw.set_eeg_reference(ref_channels=["P9", "P10"])
     raw.save(fname.reference(subject=subject), overwrite=True)
+    if config["isSpaceSaveMode"]:
+        os.remove(fname.ica(subject=subject, bads = str(list(config["subject_ica_channels"][subject]))))
 
 raw = readRawFif(fname.ica(subject=subject, bads = str(list(config["subject_ica_channels"][subject]))), preload=True)
 rereference(raw, subject)

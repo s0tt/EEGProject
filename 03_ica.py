@@ -47,6 +47,8 @@ else:
 
 #save ICA data
 raw_cleaned.save(f_ica, overwrite=True)
+if config["isSpaceSaveMode"]:
+    os.remove(fname.cleaned(subject=subject), preload=True)
 
 #manually look at components and identify independent components
 # according to: https://labeling.ucsd.edu/tutorial/labels

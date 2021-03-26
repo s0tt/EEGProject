@@ -11,6 +11,7 @@ subjects_numbers:
 isOverwrite: False #overwrite all existing data units with newly generated ones
 isDialogeMode: False #manual mode with opens dialogs windows for example for manual cleaning
 isPrecomputeMode: True #if TRUE: from step 04 on use precomputed semester project data 
+isSpaceSaveMode: True #When true deletes the .fif of the last step after it was processed --> Save disk space
 
 # Band-pass filter limits
 #according to https://mne.tools/dev/auto_tutorials/preprocessing/plot_40_artifact_correction_ica.html
