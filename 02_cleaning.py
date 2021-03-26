@@ -3,11 +3,13 @@ from config import config, fname, n_jobs
 import matplotlib.pyplot as plt
 import numpy as np
 from utils import *
+from ccs_eeg_semesterproject import *
 import os
 
+subject = handleSubjectArg()
 
 ##cleaning to be done manually
-def manualCleaning():
+def manualCleaning(raw, subject):
     print("Open subject", subject, " for cleaning")
     fig = raw.plot(n_channels=len(raw.ch_names))
     plt.show()
@@ -24,11 +26,18 @@ def manualCleaning():
     # f_cleanedFif = fname.cleaned(subject=subject)
     # raw.save(f_cleanedFif, overwrite=isOverwrite)y
     
+def interpolateBads(raw):
+    #interpolate bad channels if there exist some
+    if len(raw.info['bads']) != 0:
+        raw.interpolate_bads()
 
 #Iterate over subjects
-for subject in config["subjects_numbers"]:
-    raw = readRawFif(fname.filt(subject=subject, fmin=config["bandpass_fmin"], fmax=config["bandpass_fmax"]), preload=False)
-    assert raw is not None #small sanity check if raw object is actually loaded
+
+f_filter = fname.filt(subject=subject, fmin=config["bandpass_fmin"], fmax=config["bandpass_fmax"])
+
+#clean for all subjects where filter file is available
+if os.path.isfile(f_filter):
+    raw = readRawFif(f_filter, preload=False)
 
     ### 1. Manual Cleaning (if needed)
     f_cleanedTxt = fname.cleanedTxt(subject=subject)
@@ -38,12 +47,18 @@ for subject in config["subjects_numbers"]:
         if os.path.isfile(f_cleanedTxt) and not config["isOverwrite"]:
             user_in = input("Annotations for subject: " + str(subject) + " exist. Clean manual again ? (y/n)")
             if user_in == "y":    
-                manualCleaning()
+                manualCleaning(raw, subject)
         else:
-            manualCleaning()    
+            manualCleaning(raw, subject)    
 
-    ### 2. interpolate
-    if os.path.isfile(f_cleanedTxt): #check for existence of annotations
+    if config["isPrecomputeMode"]:
+        #just use provided cleaned data from semesterproject
+        annotations,badChannels = load_precomputed_badData("local/bids", subject)
+        raw.info['bads'] = badChannels
+        raw.annotations.append(annotations.onset,annotations.duration,annotations.description)
+        interpolateBads(raw)
+
+    elif os.path.isfile(f_cleanedTxt): #check for existence of annotations
         annotations = mne.read_annotations(f_cleanedTxt)
         raw.annotations.append(annotations.onset,annotations.duration,annotations.description)
 
@@ -53,8 +68,7 @@ for subject in config["subjects_numbers"]:
             plt.show()
         
         #interpolate bad channels if there exist some
-        if len(raw.info['bads']) != 0:
-            raw.interpolate_bads()
+        interpolateBads(raw)
 
     elif not config["isDialogeMode"]:
         raise RuntimeError("No annotations for cleaning cloud be obtained. Either use interactive mode or provide a .txt file with annotatios")
@@ -67,8 +81,13 @@ for subject in config["subjects_numbers"]:
     event_dict_stim=dict((k, event_dict[k]) for k in keys if k in event_dict)
     epochs = mne.Epochs(raw,events,event_dict_stim,tmin=-0.1,tmax=1,reject_by_annotation=False)
     epochs_manual = mne.Epochs(raw,events,event_dict_stim,tmin=-0.1,tmax=1,reject_by_annotation=True)
-    reject_criteria =  dict(eeg=config["reject_subject_config"][subject]*(10**-6))
+    reject_criteria =  dict(eeg=config["reject_subject_config"]*(10**-6))
     epochs_thresh = mne.Epochs(raw,events,event_dict_stim,tmin=-0.1,tmax=1,reject=reject_criteria,reject_by_annotation=False)
+
+    #generate new data/delete old if selected
+    raw.save(fname.cleaned(subject=subject))
+    if config["isSpaceSaveMode"]:
+        os.remove(fname.filt(subject=subject, fmin=config["bandpass_fmin"], fmax=config["bandpass_fmax"]))
 
     #from matplotlib import pyplot as plt
     # compare
