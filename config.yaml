@@ -10,7 +10,7 @@ subjects_numbers:
 #execution mode
 isOverwrite: False #overwrite all existing data units with newly generated ones
 isDialogeMode: False #manual mode with opens dialogs windows for example for manual cleaning
-isPrecomputeMode: False #if TRUE: from step 04 on use precomputed semester project data 
+isPrecomputeMode: True #if TRUE: from step 04 on use precomputed semester project data 
 
 # Band-pass filter limits
 #according to https://mne.tools/dev/auto_tutorials/preprocessing/plot_40_artifact_correction_ica.html
@@ -32,6 +32,8 @@ subject_ica_channels: {"002": [2, 10],
                        "037": [0]}
 
 # Event coding
-oddball_codes: [11, 22, 33, 44, 55]
-frequent_codes: [12, 13, 14, 15, 21, 23, 24, 25, 31, 32, 34, 35, 41, 42, 43, 45, 51, 52, 53, 54]
-response_codes: [201]
+event_coding: {
+    "rare": [11, 22, 33, 44, 55],
+    "frequent": [12, 13, 14, 15, 21, 23, 24, 25, 31, 32, 34, 35, 41, 42, 43, 45, 51, 52, 53, 54],
+    "response": [201, 202]
+}

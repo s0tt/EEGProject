@@ -9,46 +9,46 @@ from utils import handleSubjectArg, readRawFif, addFigure
 # Handle command line arguments
 subject = handleSubjectArg()
 
-def readEpochs(raw, evt_type):
+def getCodedEpochs(raw):
     evts,evts_dict = mne.events_from_annotations(raw)
-    if evt_type == "rare": #odball stimuli
-        wanted_codes = config["oddball_codes"]
-    if evt_type == "frequent": #normal letter stimuli
-        wanted_codes = config["frequent_codes"]
-    if evt_type == "all":
-        wanted_codes = config["oddball_codes"]+config["frequent_codes"]
-
-    wanted_codes = wanted_codes+config["response_codes"]
-    wanted_event_keys = [key for key in evts_dict.keys() if any(str(code) in key for code in wanted_codes)]
-    final_evts=dict((k, evts_dict[k]) for k in wanted_event_keys if k in evts_dict)
-    epochs = mne.Epochs(raw,evts,final_evts,tmin=-0.1,tmax=1)
-    return epochs
+    event_coding = config["event_coding"]
+    coding_mapping = {}
+    for coding_key in list(event_coding.keys()):
+        wanted_codes = event_coding[coding_key]
+        for key in evts_dict.keys():
+            for code in wanted_codes:
+                if(str(code) in key):
+                    coding_mapping[str(coding_key)+"/"+str(code)] = evts_dict[key]
+                
+    return mne.Epochs(raw,evts,event_id=coding_mapping,tmin=-0.1,tmax=1)
 
 raw = readRawFif(fname.reference(subject=subject))
 
-evts,evts_dict = mne.events_from_annotations(raw)
-epochs_rare = readEpochs(raw, "rare")
-fig_rare_mean = epochs_rare.plot_image(combine='mean', picks="Pz", show=False, title="Rare Stimulus")
+epochs= getCodedEpochs(raw)
 
-epochs_freq = readEpochs(raw, "frequent")
-fig_frequent_mean = epochs_freq.plot_image(combine='mean', picks="Pz", show=False, title="Frequent Stimulus")
+fig_rare_mean = epochs["rare"].plot_image(combine='mean', picks="Pz", show=False, title="Rare Stimulus")
+fig_frequent_mean = epochs["frequent"].plot_image(combine='mean', picks="Pz", show=False, title="Frequent Stimulus")
 
-average = {"rare": epochs_rare.average(), "frequent": epochs_freq.average()}
-
-mne.viz.plot_compare_evokeds(average, picks="Pz")
-
-#difference plot
-difference_wave = mne.combine_evoked([epochs_rare.average(),
-                                  epochs_freq.average()],
+rare_evoked = epochs["rare"]
+frequent_evoked = epochs["frequent"]
+difference_wave = mne.combine_evoked([rare_evoked.average(),
+                                  frequent_evoked.average()],
                                  weights=[1, -1])
 
-# plot difference wave
-difference_wave.plot_joint(times=[0.15], title='Rare - Frequent')
+average = {"rare": rare_evoked.average(), "frequent": frequent_evoked.average(), "difference": difference_wave}
 
+fig_evokeds = mne.viz.plot_compare_evokeds(average, picks="Pz")
+
+#difference plot
+
+
+# plot difference wave
+difference_wave.plot_joint(times=[0.15], title='Rare - Frequent', picks="eeg")
 evt_plot = mne.viz.plot_events(evts, event_id=evts_dict, show=False)
+
+
 addFigure(subject, evt_plot, "Event overview", "Analyse")
-addFigure(subject, fig_rare_mean, "Mean of rare (oddball) stimulus", "Analyse")
-addFigure(subject, fig_frequent_mean, "Mean of frequent stimulus", "Analyse")
+addFigure(subject, fig_evokeds, "Evokeds for different conditions")
 
 plt.show()
 
