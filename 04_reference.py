@@ -28,9 +28,9 @@ def rereference(raw, subject):
     #raw.set_eeg_reference(ref_channels=["P9", "P10"])
     raw.save(fname.reference(subject=subject), overwrite=True)
     if config["isSpaceSaveMode"]:
-        os.remove(fname.ica(subject=subject, bads = str(list(config["subject_ica_channels"][subject]))))
+        os.remove(fname.ica(subject=subject))
 
-raw = readRawFif(fname.ica(subject=subject, bads = str(list(config["subject_ica_channels"][subject]))), preload=True)
+raw = readRawFif(fname.ica(subject=subject), preload=True)
 rereference(raw, subject)
 fig, axes = plt.subplots(1, 2)
 for title, proj, axis in zip(['Original', 'Average'], [False, True], axes):

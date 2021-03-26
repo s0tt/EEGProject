@@ -42,7 +42,7 @@ else:
     #ica = add_ica_info(raw, ica)
 
     #Apply ICA to original raw data after components are found
-    f_ica = fname.ica(subject=subject, bads = str(list(config["subject_ica_channels"][subject])))
+    f_ica = fname.ica(subject=subject)
     raw_cleaned = ica.apply(raw, exclude=list(config["subject_ica_channels"][subject]))
 
 #save ICA data

@@ -1,7 +1,7 @@
 #TODO: Implement pipeline
 from config import config, fname
 
-all_subjects = [str(sub).zfill(3) for sub in range(1,41)]
+all_subjects = [str(sub).zfill(3) for sub in range(1,15)]
 
 ###set which subjects to compute
 #subjects = config["subjects_numbers"]
@@ -27,6 +27,7 @@ def task_01_preprocess():
             name=subject,
             targets=[file_filter],
             actions=["python 01_preprocess.py {sub}".format(sub=subject)],
+            
         )
 
 def task_02_clean():
@@ -36,6 +37,7 @@ def task_02_clean():
             name=subject,
             targets=[fname.cleaned(subject=subject)],
             actions=["python 02_cleaning.py {sub}".format(sub=subject)],
+            file_dep=[fname.filt(subject=subject,fmin=config["bandpass_fmin"], fmax=config["bandpass_fmax"])]
         )
 
 def task_03_ica():
@@ -43,8 +45,9 @@ def task_03_ica():
     for subject in subjects:
         yield dict(
             name=subject,
-            targets=[fname.ica(subject=subject, bads = str(list(config["subject_ica_channels"][subject])))],
+            targets=[fname.ica(subject=subject)],
             actions=["python 03_ica.py {sub}".format(sub=subject)],
+            file_dep=[fname.cleaned(subject=subject)]
         )
 
 def task_04_reference():
