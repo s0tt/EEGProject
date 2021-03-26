@@ -1,3 +1,6 @@
+#task
+task: "P3"
+
 #subjects to analyse
 subjects_numbers: 
   - "002"
@@ -7,7 +10,7 @@ subjects_numbers:
 #execution mode
 isOverwrite: False #overwrite all existing data units with newly generated ones
 isDialogeMode: False #manual mode with opens dialogs windows for example for manual cleaning
-isPrecomputeMode: True #if TRUE: from step 04 on use precomputed semester project data 
+isPrecomputeMode: False #if TRUE: from step 04 on use precomputed semester project data 
 
 # Band-pass filter limits
 #according to https://mne.tools/dev/auto_tutorials/preprocessing/plot_40_artifact_correction_ica.html

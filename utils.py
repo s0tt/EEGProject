@@ -5,11 +5,11 @@ import fnames
 import json
 import re
 import argparse
-from config import *
+from config import config, fname
 
 
-def readRawData(subject_id,task="P3",session="P3", datatype='eeg', suffix='eeg', bids_root="local/bids"):
-    bids_path = BIDSPath(subject=subject_id,task="P3",session="P3",
+def readRawData(subject_id,task=config["task"],session=config["task"], datatype='eeg', suffix='eeg', bids_root="local/bids"):
+    bids_path = BIDSPath(subject=subject_id,task=config["task"],session=config["task"],
                      datatype='eeg', suffix='eeg',
                      root=bids_root)
     raw = read_raw_bids(bids_path)
