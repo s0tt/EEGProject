@@ -7,6 +7,7 @@ Config file for EEG Project
 import os
 from fnames import FileNames
 import yaml
+import mne
 
 #check current user and paths, raise error if new user has not set a path
 user = os.getlogin()
@@ -22,6 +23,10 @@ try:
         config = yaml.load(config_file.read(), Loader=yaml.Loader)
 except yaml.YAMLError as err:
     raise IOError("Error reading yaml config")
+
+#set mne log level
+mne.set_log_level(verbose="ERROR")
+
 
 fname = FileNames()
 

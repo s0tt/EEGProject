@@ -11,7 +11,7 @@ subjects_numbers:
 isOverwrite: False #overwrite all existing data units with newly generated ones
 isDialogeMode: False #manual mode with opens dialogs windows for example for manual cleaning
 isPrecomputeMode: True #if TRUE: from step 04 on use precomputed semester project data 
-isSpaceSaveMode: True #When true deletes the .fif of the last step after it was processed --> Save disk space
+isSpaceSaveMode: False #When true deletes the .fif of the last step after it was processed --> Save disk space
 
 # Band-pass filter limits
 #according to https://mne.tools/dev/auto_tutorials/preprocessing/plot_40_artifact_correction_ica.html
@@ -20,9 +20,7 @@ bandpass_fmax: 50  # Hz
 nr_filt_cycles: 1 #nr of filter cycles
 
 #peak-to-peak reject criteria in ^-6 scaling
-reject_subject_config:  {"002": 200,
-                         "019": 200,
-                         "037": 200}
+reject_subject_config:  200
 
 # ICA
 nr_ica_components: 20

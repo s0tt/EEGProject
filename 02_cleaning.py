@@ -3,9 +3,10 @@ from config import config, fname, n_jobs
 import matplotlib.pyplot as plt
 import numpy as np
 from utils import *
+from ccs_eeg_semesterproject import *
 import os
 
-subject = handleSubjectArg
+subject = handleSubjectArg()
 
 ##cleaning to be done manually
 def manualCleaning(raw, subject):
@@ -80,7 +81,7 @@ if os.path.isfile(f_filter):
     event_dict_stim=dict((k, event_dict[k]) for k in keys if k in event_dict)
     epochs = mne.Epochs(raw,events,event_dict_stim,tmin=-0.1,tmax=1,reject_by_annotation=False)
     epochs_manual = mne.Epochs(raw,events,event_dict_stim,tmin=-0.1,tmax=1,reject_by_annotation=True)
-    reject_criteria =  dict(eeg=config["reject_subject_config"][subject]*(10**-6))
+    reject_criteria =  dict(eeg=config["reject_subject_config"]*(10**-6))
     epochs_thresh = mne.Epochs(raw,events,event_dict_stim,tmin=-0.1,tmax=1,reject=reject_criteria,reject_by_annotation=False)
 
     #generate new data/delete old if selected

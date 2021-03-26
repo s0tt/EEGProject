@@ -1,7 +1,7 @@
 #TODO: Implement pipeline
 from config import config, fname
 
-all_subjects = [str(sub).zfill(3) for sub in range(1,15)]
+all_subjects = [str(sub).zfill(3) for sub in [1, 3, 4, 5, 6]]
 
 ###set which subjects to compute
 #subjects = config["subjects_numbers"]
@@ -57,4 +57,5 @@ def task_04_reference():
             name=subject,
             targets=[fname.reference(subject=subject)],
             actions=["python 04_reference.py {sub}".format(sub=subject)],
+            file_dep=[fname.ica(subject=subject)]
         )

@@ -42,26 +42,28 @@ else:
     #ica = add_ica_info(raw, ica)
 
     #Apply ICA to original raw data after components are found
-    f_ica = fname.ica(subject=subject)
-    raw_cleaned = ica.apply(raw, exclude=list(config["subject_ica_channels"][subject]))
+    bad_components = config["subject_ica_channels"][subject]
+    raw_cleaned = ica.apply(raw, exclude=list(bad_components))
+
+    #manually look at components and identify independent components
+    # according to: https://labeling.ucsd.edu/tutorial/labels
+    fig_components = ica.plot_components(show=True if config["isDialogeMode"] else False)
+
+    fig_reject_components = []
+
+    if config["isDialogeMode"]:
+        ica.plot_properties(raw, picks=range(config["nr_ica_components"]), show=True)
+
+    for component in config["subject_ica_channels"][subject]:
+        break
+        #fig_reject_components.append(ica.plot_properties(raw, picks=[component],show=False)) TODO: find solution to plot this 3d interactive object to report
+    addFigure(subject, fig_components, "ICA Component overview:", "Preprocess")
 
 #save ICA data
+f_ica = fname.ica(subject=subject)
 raw_cleaned.save(f_ica, overwrite=True)
 if config["isSpaceSaveMode"]:
     os.remove(fname.cleaned(subject=subject), preload=True)
-
-#manually look at components and identify independent components
-# according to: https://labeling.ucsd.edu/tutorial/labels
-fig_components = ica.plot_components(show=True if config["isDialogeMode"] else False)
-
-fig_reject_components = []
-
-if config["isDialogeMode"]:
-    ica.plot_properties(raw, picks=range(config["nr_ica_components"]), show=True)
-
-for component in config["subject_ica_channels"][subject]:
-    break
-    #fig_reject_components.append(ica.plot_properties(raw, picks=[component],show=False)) TODO: find solution to plot this 3d interactive object to report
 
 #ica.plot_properties(raw)
 evts,evts_dict = mne.events_from_annotations(raw)
@@ -69,8 +71,5 @@ wanted_keys = [e for e in evts_dict.keys() if "response" in e]
 evts_dict_stim=dict((k, evts_dict[k]) for k in wanted_keys if k in evts_dict)
 epochs = mne.Epochs(raw,evts,evts_dict_stim,tmin=-0.1,tmax=1)
 epochs.average().plot(show=False)
-fig_overlay = ica.plot_overlay(raw,exclude=config["subject_ica_channels"][subject], show=False)
-
-
-addFigure(subject, fig_components, "ICA Component overview:", "Preprocess")
+fig_overlay = ica.plot_overlay(raw,exclude=bad_components, show=False)
 addFigure(subject, fig_overlay, "Overlay original/reconstructed:", "Preprocess")
