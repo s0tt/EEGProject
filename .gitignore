@@ -6,6 +6,7 @@ reports/
 subjects/
 test
 test.ipynb
+.doit*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
