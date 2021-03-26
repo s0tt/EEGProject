@@ -31,7 +31,7 @@ def readRawFif(fname, **kwargs):
 
         return raw
     except FileNotFoundError:
-        print("File to load of subject", subject, "not found. Did you run the previous steps?")
+        print("File to load not found. Did you run the previous steps?")
 
 def readEventCoding():
     oddBallIds = []

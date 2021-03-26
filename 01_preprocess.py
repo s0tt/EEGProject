@@ -31,8 +31,7 @@ raw_filt = raw.copy().filter(
 
 figs_before.append(raw.plot_psd(show=False))
 figs_after.append(raw_filt.plot_psd(show=False))
-f = fname.filt(subject=subject, run=run,
-                fmin=config["bandpass_fmin"], fmax=config["bandpass_fmax"])
+f = fname.filt(subject=subject, fmin=config["bandpass_fmin"], fmax=config["bandpass_fmax"])
 raw_filt.save(f, overwrite=True)
 
 # Append PDF plots to report

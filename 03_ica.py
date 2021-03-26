@@ -11,7 +11,7 @@ from utils import *
 subject = handleSubjectArg()
 
 # Load raw data
-raw = readRawFif(fname.filt(subject=subject, run=1, fmin=config["bandpass_fmin"], fmax=config["bandpass_fmax"]), preload=True)
+raw = readRawFif(fname.filt(subject=subject, fmin=config["bandpass_fmin"], fmax=config["bandpass_fmax"]), preload=True)
 
 #load annotations for reject by annotations
 # annotations = mne.read_annotations(f_cleanedTxt)

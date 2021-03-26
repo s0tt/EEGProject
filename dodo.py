@@ -14,7 +14,7 @@ def task_00_init():
 def task_01_preprocess():
     """Step 01: Preprocess EEG data"""
     for subject in config["subjects_numbers"]:
-        file_filter = fname.filt(subject=subject, run=1,
+        file_filter = fname.filt(subject=subject,
                    fmin=config["bandpass_fmin"], fmax=config["bandpass_fmax"])
 
         yield dict(

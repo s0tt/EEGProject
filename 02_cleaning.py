@@ -3,6 +3,7 @@ from config import config, fname, n_jobs
 import matplotlib.pyplot as plt
 import numpy as np
 from utils import *
+import os
 
 
 ##cleaning to be done manually
@@ -26,7 +27,8 @@ def manualCleaning():
 
 #Iterate over subjects
 for subject in config["subjects_numbers"]:
-    raw = readRawFif(fname.filt(subject=subject, run=1, fmin=config["bandpass_fmin"], fmax=config["bandpass_fmax"]), preload=False)
+    raw = readRawFif(fname.filt(subject=subject, fmin=config["bandpass_fmin"], fmax=config["bandpass_fmax"]), preload=False)
+    assert raw is not None #small sanity check if raw object is actually loaded
 
     ### 1. Manual Cleaning (if needed)
     f_cleanedTxt = fname.cleanedTxt(subject=subject)
@@ -53,6 +55,10 @@ for subject in config["subjects_numbers"]:
         #interpolate bad channels if there exist some
         if len(raw.info['bads']) != 0:
             raw.interpolate_bads()
+
+    elif not config["isDialogeMode"]:
+        raise RuntimeError("No annotations for cleaning cloud be obtained. Either use interactive mode or provide a .txt file with annotatios")
+
 
 
     ### 3. generate report of compared epochs
