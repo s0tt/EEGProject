@@ -11,30 +11,41 @@ from utils import *
 subject = handleSubjectArg()
 
 # Load raw data
-raw = readRawFif(fname.filt(subject=subject, fmin=config["bandpass_fmin"], fmax=config["bandpass_fmax"]), preload=True)
+raw = readRawFif(fname.cleaned(subject=subject), preload=True)
 
-#load annotations for reject by annotations
+#ica specific high-pass filter with ~1hz to remove slow drifts
+# according to: https://mne.tools/dev/auto_tutorials/preprocessing/plot_40_artifact_correction_ica.html
+# and https://mne.tools/stable/generated/mne.preprocessing.ICA.html 
+raw_filt = raw.copy()
+raw_filt.load_data().filter(l_freq=config["freq_highpass_ica"], h_freq=None)
+
+#TODO: load annotations for reject by annotations
 # annotations = mne.read_annotations(f_cleanedTxt)
 # raw.annotations.append(annotations.onset,annotations.duration,annotations.description)
 
 
 print('############ 03 ############\nProcessing subject:', subject)
-#use picard ICA for faster convergence & robustness according to 
-# https://mne.tools/dev/auto_tutorials/preprocessing/plot_40_artifact_correction_ica.html
-ica = mne.preprocessing.ICA(n_components=config["nr_ica_components"], random_state=97, max_iter=800, method=config["ica_method"])
 
-#ica specific high-pass filter with ~1hz to remove slow drifts
-# according to: https://mne.tools/dev/auto_tutorials/preprocessing/plot_40_artifact_correction_ica.html
-# and https://mne.tools/stable/generated/mne.preprocessing.ICA.html 
-filt_raw = raw.copy()
-filt_raw.load_data().filter(l_freq=config["freq_highpass_ica"], h_freq=None)
+if config["isPrecomputeMode"]:
+    ica, bad_components = load_precomputed_ica("local/bids", subject)
+    raw_cleaned = ica.apply(raw_filt, exclude=bad_components.astype(int))
 
-ica.fit(filt_raw, verbose=True)
-#ica = add_ica_info(raw, ica)
+else:
+    #use picard ICA for faster convergence & robustness according to 
+    # https://mne.tools/dev/auto_tutorials/preprocessing/plot_40_artifact_correction_ica.html
+    ica = mne.preprocessing.ICA(n_components=config["nr_ica_components"], random_state=97, max_iter=800, method=config["ica_method"])
 
-#Apply ICA to original raw data after components are found
-f_ica = fname.ica(subject=subject, bads = str(list(config["subject_ica_channels"][subject])))
-raw_cleaned = ica.apply(raw, exclude=list(config["subject_ica_channels"][subject]))
+    raw_filt = raw.copy()
+    raw_filt.load_data().filter(l_freq=config["freq_highpass_ica"], h_freq=None)
+
+    ica.fit(raw_filt, verbose=True)
+    #ica = add_ica_info(raw, ica)
+
+    #Apply ICA to original raw data after components are found
+    f_ica = fname.ica(subject=subject, bads = str(list(config["subject_ica_channels"][subject])))
+    raw_cleaned = ica.apply(raw, exclude=list(config["subject_ica_channels"][subject]))
+
+#save ICA data
 raw_cleaned.save(f_ica, overwrite=True)
 
 #manually look at components and identify independent components

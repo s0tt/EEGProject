@@ -33,7 +33,7 @@ fname.add('subject_dir', '{subjects_dir}/{subject}')
 
 # Filenames for data files
 fname.add('filt', '{subject_dir}/filt-{fmin}-{fmax}-raw_sss.fif')
-fname.add('cleaned', '{subject_dir}/manual_clean-raw.fif')
+fname.add('cleaned', '{subject_dir}/cleaned-raw.fif')
 # there seem to be problems with read anntoations in .csv format --> use .txt for now
 fname.add('cleanedTxt', '{subject_dir}/raw-manual_clean-annotations.txt')
 fname.add('ica', '{subject_dir}/{subject}-removed{bads}-ica-raw.fif')

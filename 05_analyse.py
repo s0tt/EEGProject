@@ -56,16 +56,16 @@ plt.show()
 #RQ: On which ERP-peaks do we find major difference between the conditions
 #statistically test via linear regression
 # name of predictors + intercept
-predictor_vars = ['face a - face b', 'phase-coherence', 'intercept']
+# predictor_vars = ['face a - face b', 'phase-coherence', 'intercept']
 
-# create design matrix
-epochs_all = readEpochs(raw, "all")
-design = epochs_all.metadata[['phase-coherence', 'face']].copy()
-design['face a - face b'] = np.where(design['face'] == 'A', 1, -1)
-design['intercept'] = 1
-design = design[predictor_vars]
+# # create design matrix
+# epochs_all = readEpochs(raw, "all")
+# design = epochs_all.metadata[['phase-coherence', 'face']].copy()
+# design['face a - face b'] = np.where(design['face'] == 'A', 1, -1)
+# design['intercept'] = 1
+# design = design[predictor_vars]
 
-reg = linear_regression(epochs_all,
-                        design_matrix=design,
-                        names=predictor_vars)
+# reg = linear_regression(epochs_all,
+#                         design_matrix=design,
+#                         names=predictor_vars)
 
