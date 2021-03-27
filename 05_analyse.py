@@ -57,7 +57,7 @@ def getCodedEpochs(raw):
         wanted_codes = event_coding[coding_key]
         for key in evts_dict.keys():
             for code in wanted_codes:
-                if(str(code) in key):
+                if(str(code) == key.split(":")[1]):
                     coding_mapping[str(coding_key)+"/"+str(code)] = evts_dict[key]
 
 
