@@ -6,6 +6,7 @@ from mne_bids import (BIDSPath, read_raw_bids)
 from matplotlib import pyplot as plt
 from utils import handleSubjectArg, readRawFif, addFigure
 import json, os
+import numpy as np
 
 # Handle command line arguments
 subject = handleSubjectArg()
@@ -14,6 +15,42 @@ def getCodedEpochs(raw):
     evts,evts_dict = mne.events_from_annotations(raw)
     evt_plot = mne.viz.plot_events(evts, event_id=evts_dict, show=False)
     addFigure(subject, evt_plot, "Event overview", "Analyse")
+
+    ##### Remove epochs where reponse to stimulus has a wrong code (e.g. P3 code: 202)
+    events_dict_inv = {v: k for k, v in evts_dict.items()}
+    #Assert correct inversion
+    assert len(evts_dict) == len(events_dict_inv)
+
+    wrong_response_code = config["event_coding"]["response"][1]
+    wrong_event_ids = evts_dict[f"response:{wrong_response_code}"]
+    wrong_events = []
+    if evts[0][2] == wrong_event_ids:
+        wrong_events.append(0)
+
+    #Check for all events if wrong response happened
+    for i in range(len(evts)-1):
+        if evts[i+1][2] == wrong_event_ids:
+            prev_event_id = evts[i][2]
+            prev_event_type = events_dict_inv[prev_event_id]
+            if prev_event_type.startswith("stimulus"):
+                # Mark event with stimulus that caused wrong response
+                wrong_events.append(i)
+            # Mark event with wrong response
+            wrong_events.append(i+1)
+
+    #Update events&event dict
+    evts = np.delete(evts, wrong_events, axis=0)
+    evts_dict = dict((k,v) for k, v in evts_dict.items() if v in evts[:,2])
+
+    #Check if cleaning successful 
+    assert evts[:,2].all() != wrong_event_ids
+
+    #issue warning for bad segment annotations before returning the Epoch object if no BAD_ tag is found
+    assert any(description.startswith('BAD_') for description in raw.annotations.description)
+
+    #TODO: draw plot which proves removed epochs
+
+    ###### Adapt event coding #####
     event_coding = config["event_coding"]
     coding_mapping = {}
     for coding_key in list(event_coding.keys()):
@@ -22,8 +59,10 @@ def getCodedEpochs(raw):
             for code in wanted_codes:
                 if(str(code) in key):
                     coding_mapping[str(coding_key)+"/"+str(code)] = evts_dict[key]
-                
-    return mne.Epochs(raw,evts,event_id=coding_mapping,tmin=-0.1,tmax=1)
+
+
+
+    return mne.Epochs(raw,evts,event_id=coding_mapping,tmin=-0.1,tmax=1, reject_by_annotation=True)
 
 raw = readRawFif(fname.reference(subject=subject))
 
@@ -69,6 +108,11 @@ with open(fname.evokedPeaks) as json_file:
     subject_peaks[subject]["frequent"]["peak"] = frequent_evoked.load_data().pick("Pz").average().get_peak(ch_type="eeg")
     evoked_peaks[subject] = subject_peaks[subject]
     writeJson(evoked_peaks)
+
+
+##write epoch objects
+rare_evoked.load_data().pick("Pz").average().save(fname.evokedRare(subject=subject))
+frequent_evoked.load_data().pick("Pz").average().save(fname.evokedFrequent(subject=subject))
 
 #RQ: On which ERP-peaks do we find major difference between the conditions
 #statistically test via linear regression
