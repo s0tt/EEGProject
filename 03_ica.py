@@ -28,7 +28,7 @@ print('############ 03 ############\nProcessing subject:', subject)
 
 if config["isPrecomputeMode"]:
     ica, bad_components = load_precomputed_ica("local/bids", subject)
-    raw_cleaned = ica.apply(raw_filt, exclude=bad_components.astype(int))
+    raw_cleaned = ica.apply(raw_filt, exclude=np.array(bad_components).astype(int))
 
 else:
     #use picard ICA for faster convergence & robustness according to 

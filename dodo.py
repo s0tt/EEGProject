@@ -1,7 +1,7 @@
 #TODO: Implement pipeline
 from config import config, fname
 
-all_subjects = [str(sub).zfill(3) for sub in [1, 3, 4, 5, 6]]
+all_subjects = [str(sub).zfill(3) for sub in range(1,41)]#[1, 3, 4, 5, 6]]
 
 ###set which subjects to compute
 #subjects = config["subjects_numbers"]
@@ -63,7 +63,7 @@ def task_05_analyse():
     for subject in subjects:
         yield dict(
             name=subject,
-            targets=[fname.evokedFrequent(subject=subject), fname.evokedRare(subject=subject)],
+            targets=[fname.evokedFrequent(subject=subject), fname.evokedRare(subject=subject), fname.evokedPeaks(subject=subject)],
             actions=["python 05_analyse.py {sub}".format(sub=subject)],
             file_dep=[fname.reference(subject=subject)]
         )
@@ -72,6 +72,6 @@ def task_06_grandAverage():
     """Step 06: Plot grand average"""
     return dict(
             targets=[fname.totalReport],
-            actions=["python 06_grandAverage.py {sub}".format(sub=[subject for subject in subjects])],
+            actions=["python 06_grandAverage.py {sub}".format(sub= ' '.join([subject for subject in subjects]))],
             file_dep=[fname.evokedFrequent(subject=subject) for subject in subjects] + [fname.evokedRare(subject=subject) for subject in subjects]
         )

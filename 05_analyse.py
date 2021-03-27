@@ -93,14 +93,14 @@ addFigure(subject, fig_evokeds, "Evokeds for different conditions", "Analyse")
 
 
 def writeJson(json_dict):
-    with open(fname.evokedPeaks, "w") as json_file:
+    with open(fname.evokedPeaks(subject=subject), "w") as json_file:
         json.dump(json_dict, json_file, indent=4)
 
 ####extract evoked peaks for given subject
-if not os.path.isfile(fname.evokedPeaks):
+if not os.path.isfile(fname.evokedPeaks(subject=subject)):
     writeJson(dict())
 
-with open(fname.evokedPeaks) as json_file:
+with open(fname.evokedPeaks(subject=subject)) as json_file:
     evoked_peaks = json.load(json_file)
     subject_peaks = {}
     subject_peaks[subject] = {"rare": {}, "frequent": {}}
@@ -111,6 +111,7 @@ with open(fname.evokedPeaks) as json_file:
 
 
 ##write epoch objects
+epochs.save(fname.epochs(subject=subject), overwrite=True)
 rare_evoked.load_data().pick("Pz").average().save(fname.evokedRare(subject=subject))
 frequent_evoked.load_data().pick("Pz").average().save(fname.evokedFrequent(subject=subject))
 

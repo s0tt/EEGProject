@@ -54,9 +54,14 @@ if os.path.isfile(f_filter):
     if config["isPrecomputeMode"]:
         #just use provided cleaned data from semesterproject
         annotations,badChannels = load_precomputed_badData("local/bids", subject)
-        raw.info['bads'] = badChannels
+        if badChannels is not None:
+            if badChannels.ndim > 0: #catch 0 dimensional arrays and handle them with direct access
+                ch_names = [raw.info.ch_names[idx] for idx in badChannels]
+            else:
+                ch_names = [raw.info.ch_names[badChannels]]
+            raw.info['bads'].extend(ch_names)
         raw.annotations.append(annotations.onset,annotations.duration,annotations.description)
-        interpolateBads(raw)
+        interpolateBads(raw.load_data())
 
     elif os.path.isfile(f_cleanedTxt): #check for existence of annotations
         annotations = mne.read_annotations(f_cleanedTxt)
@@ -85,7 +90,7 @@ if os.path.isfile(f_filter):
     epochs_thresh = mne.Epochs(raw,events,event_dict_stim,tmin=-0.1,tmax=1,reject=reject_criteria,reject_by_annotation=False)
 
     #generate new data/delete old if selected
-    raw.save(fname.cleaned(subject=subject))
+    raw.save(fname.cleaned(subject=subject), overwrite=True)
     if config["isSpaceSaveMode"]:
         os.remove(fname.filt(subject=subject, fmin=config["bandpass_fmin"], fmax=config["bandpass_fmax"]))
 
