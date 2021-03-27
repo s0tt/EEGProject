@@ -15,6 +15,7 @@ subjects = args.subjects
 
 evoked_rare_list = []
 evoked_frequent_list = []
+peak_list = []
 
 for subject in subjects:
     try:
@@ -26,6 +27,11 @@ for subject in subjects:
         evoked_rare_list.append(epoch["rare"].average())
         evoked_frequent_list.append(epoch["frequent"].average())
 
+        #get peaks
+        _,_,peak_rare = epoch["rare"].average().pick("Pz").get_peak(return_amplitude=True)
+        _,_,peak_frequent = epoch["frequent"].average().pick("Pz").get_peak(return_amplitude=True)
+        peak_list.append([peak_rare, peak_frequent])
+
     except FileNotFoundError:
         print("Please run step 05 for all subject before computing the grand average")
 
@@ -35,8 +41,13 @@ difference_wave = mne.combine_evoked([rareAverage,
                                   frequentAverage],
                                  weights=[1, -1])
 
-average = {"rare": rareAverage, "frequent": frequentAverage, "diference": difference_wave}
+average = {"rare": rareAverage, "frequent": frequentAverage, "difference": difference_wave}
 
-fig_evokeds = mne.viz.plot_compare_evokeds(average, picks="Pz", show=True)
+fig_evokeds = mne.viz.plot_compare_evokeds(average, picks="Pz", show=False)
 
 
+###t-test
+data = np.stack(peak_list)
+hist = plt.hist(data, bins=10)
+t_values, clusters, cluster_p_values, h0 = mne.stats.permutation_cluster_1samp_test(data)
+print("End")
