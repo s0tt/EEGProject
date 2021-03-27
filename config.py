@@ -45,6 +45,7 @@ fname.add('ica', '{subject_dir}/{subject}-ica-raw.fif')
 fname.add('reference', '{subject_dir}/{subject}-referenced-raw.fif')
 fname.add('events','{study_path}/local/bids/sub-{subject}/ses-P3/eeg/sub-{subject}_ses-P3_task-P3_events.tsv' )
 fname.add('eventCodes','{study_path}/local/bids/task-P3_events.json')
+fname.add('evokedPeaks','{subjects_dir}/evoked-peaks.json')
 
 # Filenames for MNE reports
 fname.add('reports_dir', '{study_path}/reports/{task}'.format(study_path=study_path, task=config["task"]))

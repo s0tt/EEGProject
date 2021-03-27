@@ -5,6 +5,7 @@ from config import config, fname, n_jobs
 from mne_bids import (BIDSPath, read_raw_bids)
 from matplotlib import pyplot as plt
 from utils import handleSubjectArg, readRawFif, addFigure
+import json, os
 
 # Handle command line arguments
 subject = handleSubjectArg()
@@ -39,32 +40,49 @@ difference_wave = mne.combine_evoked([rare_evoked.average(),
 
 average = {"rare": rare_evoked.average(), "frequent": frequent_evoked.average(), "difference": difference_wave}
 
-fig_evokeds = mne.viz.plot_compare_evokeds(average, picks="Pz")
+fig_evokeds = mne.viz.plot_compare_evokeds(average, picks="Pz", show=False)
 
 #difference plot
 
 
 # plot difference wave
-difference_wave.plot_joint(times=[0.15], title='Rare - Frequent', picks="eeg")
+difference_wave.plot_joint(times=[0.15], title='Rare - Frequent', picks="eeg", show=False)
 
 addFigure(subject, fig_evokeds, "Evokeds for different conditions", "Analyse")
 
 #plt.show()
 
 
+def writeJson(json_dict):
+    with open(fname.evokedPeaks, "w") as json_file:
+        json.dump(json_dict, json_file, indent=4)
+
+####extract evoked peaks for given subject
+if not os.path.isfile(fname.evokedPeaks):
+    writeJson(dict())
+
+with open(fname.evokedPeaks) as json_file:
+    evoked_peaks = json.load(json_file)
+    subject_peaks = {}
+    subject_peaks[subject] = {"rare": {}, "frequent": {}}
+    subject_peaks[subject]["rare"]["peak"] = rare_evoked.load_data().pick("Pz").average().get_peak(ch_type="eeg")
+    subject_peaks[subject]["frequent"]["peak"] = frequent_evoked.load_data().pick("Pz").average().get_peak(ch_type="eeg")
+    evoked_peaks[subject] = subject_peaks[subject]
+    writeJson(evoked_peaks)
+
 #RQ: On which ERP-peaks do we find major difference between the conditions
 #statistically test via linear regression
 # name of predictors + intercept
-predictor_vars = ['face a - face b', 'phase-coherence', 'intercept']
+# predictor_vars = ['face a - face b', 'phase-coherence', 'intercept']
 
-# # create design matrix
-meta = epochs.metadata.head()
-design = epochs.metadata[['phase-coherence', 'face']].copy()
-design['face a - face b'] = np.where(design['face'] == 'A', 1, -1)
-design['intercept'] = 1
-design = design[predictor_vars]
+# # # create design matrix
+# meta = epochs.metadata.head()
+# design = epochs.metadata[['phase-coherence', 'face']].copy()
+# design['face a - face b'] = np.where(design['face'] == 'A', 1, -1)
+# design['intercept'] = 1
+# design = design[predictor_vars]
 
-reg = linear_regression(epochs_all,
-                        design_matrix=design,
-                        names=predictor_vars)
+# reg = linear_regression(epochs_all,
+#                         design_matrix=design,
+#                         names=predictor_vars)
 
