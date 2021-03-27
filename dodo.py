@@ -13,21 +13,19 @@ def task_00_init():
         yield dict(
             name = subject,
             actions=["python 00_init.py {sub}".format(sub=subject)],
-            targets=[fname.subject_dir(subject=subject)]
+            targets=[fname.subject_dir(subject=subject)],
+            uptodate=[True]
         )
 
 
 def task_01_preprocess():
     """Step 01: Preprocess EEG data by filtering"""
     for subject in subjects:
-        file_filter = fname.filt(subject=subject,
-                   fmin=config["bandpass_fmin"], fmax=config["bandpass_fmax"])
-
         yield dict(
             name=subject,
-            targets=[file_filter],
+            targets=[fname.filt(subject=subject,fmin=config["bandpass_fmin"], fmax=config["bandpass_fmax"])],
             actions=["python 01_preprocess.py {sub}".format(sub=subject)],
-            
+            uptodate=[True]        
         )
 
 def task_02_clean():
@@ -58,4 +56,22 @@ def task_04_reference():
             targets=[fname.reference(subject=subject)],
             actions=["python 04_reference.py {sub}".format(sub=subject)],
             file_dep=[fname.ica(subject=subject)]
+        )
+
+def task_05_analyse():
+    """Step 05: Plot subject ERP and extract peaks"""
+    for subject in subjects:
+        yield dict(
+            name=subject,
+            targets=[fname.evokedFrequent(subject=subject), fname.evokedRare(subject=subject)],
+            actions=["python 05_analyse.py {sub}".format(sub=subject)],
+            file_dep=[fname.reference(subject=subject)]
+        )
+
+def task_06_grandAverage():
+    """Step 06: Plot grand average"""
+    return dict(
+            targets=[fname.totalReport],
+            actions=["python 06_grandAverage.py {sub}".format(sub=[subject for subject in subjects])],
+            file_dep=[fname.evokedFrequent(subject=subject) for subject in subjects] + [fname.evokedRare(subject=subject) for subject in subjects]
         )
