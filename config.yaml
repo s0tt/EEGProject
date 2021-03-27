@@ -25,7 +25,7 @@ reject_subject_config:  200
 # ICA
 nr_ica_components: 20
 ica_method: "picard"
-freq_highpass_ica: 0.1
+freq_highpass_ica: 1
 subject_ica_channels: {"002": [2, 10],
                        "019": [1],
                        "037": [0]}
