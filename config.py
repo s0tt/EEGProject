@@ -24,9 +24,6 @@ try:
 except yaml.YAMLError as err:
     raise IOError("Error reading yaml config")
 
-#set mne log level
-mne.set_log_level(verbose="ERROR")
-
 
 fname = FileNames()
 
@@ -35,6 +32,8 @@ fname.add('study_path', study_path)
 fname.add('archive_dir', '{study_path}/archive')
 fname.add('subjects_dir', '{study_path}/subjects/{task}'.format(study_path=study_path, task=config["task"]))
 fname.add('subject_dir', '{subjects_dir}/{subject}')
+fname.add('log', '{subjects_dir}/mne-log.txt')
+
 
 # Filenames for data files
 fname.add('filt', '{subject_dir}/filt-{fmin}-{fmax}-raw_sss.fif')
@@ -45,11 +44,21 @@ fname.add('ica', '{subject_dir}/{subject}-ica-raw.fif')
 fname.add('reference', '{subject_dir}/{subject}-referenced-raw.fif')
 fname.add('events','{study_path}/local/bids/sub-{subject}/ses-P3/eeg/sub-{subject}_ses-P3_task-P3_events.tsv' )
 fname.add('eventCodes','{study_path}/local/bids/task-P3_events.json')
+fname.add('evokedPeaks','{subject_dir}/evoked-peaks.json')
+fname.add('epochs','{subject_dir}/{subject}-coded-epochs-epo.fif')
+fname.add('evokedRare','{subject_dir}/evoked-rare-ave.fif')
+fname.add('evokedFrequent','{subject_dir}/evoked-frequent-ave.fif')
 
 # Filenames for MNE reports
 fname.add('reports_dir', '{study_path}/reports/{task}'.format(study_path=study_path, task=config["task"]))
 fname.add('report', '{reports_dir}/{subject}-report.h5')
 fname.add('report_html', '{reports_dir}/{subject}-report.html')
+fname.add('totalReport', '{reports_dir}/total-report.h5')
+fname.add('totalReport_html', '{reports_dir}/total-report.html')
 
 # For FreeSurfer and MNE-Python to find the MRI data
 os.environ["SUBJECTS_DIR"] = fname.subjects_dir
+
+#set mne log level
+mne.set_log_level(verbose="ERROR")
+#mne.set_log_file(fname=fname.log())

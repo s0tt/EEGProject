@@ -26,6 +26,7 @@ def rereference(raw, subject):
     raw.set_eeg_reference('average', projection=True)
     #TODO: Later compare several reference methods
     #raw.set_eeg_reference(ref_channels=["P9", "P10"])
+
     raw.save(fname.reference(subject=subject), overwrite=True)
     if config["isSpaceSaveMode"]:
         os.remove(fname.ica(subject=subject))
@@ -38,4 +39,6 @@ for title, proj, axis in zip(['Original', 'Average'], [False, True], axes):
     # make room for title
     axis.subplots_adjust(top=0.9)
     axis.suptitle('{} reference'.format(title))
-addFigure(subject, fig, "Comparison original/ average referenced:", "Preprocess")
+
+addFigure(subject, raw.plot(proj=False, show=False), "Before referencing:", "Preprocess")
+addFigure(subject, raw.plot(proj=True, show=False), "After referencing:", "Preprocess")
