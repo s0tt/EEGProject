@@ -43,7 +43,7 @@ difference_wave = mne.combine_evoked([rareAverage,
 
 average = {"rare": rareAverage, "frequent": frequentAverage, "difference": difference_wave}
 
-fig_evokeds = mne.viz.plot_compare_evokeds(average, picks=config["pick"], show=False)
+fig_evokeds = mne.viz.plot_compare_evokeds(average, picks=config["pick"], show=True)
 
 
 ###t-test
