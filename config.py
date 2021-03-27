@@ -19,7 +19,7 @@ else:
 
 ##load YAML config to not polut namespace with python config variables
 try:     
-    with open("config.yaml", "r") as config_file:
+    with open("config_n170.yaml", "r") as config_file:
         config = yaml.load(config_file.read(), Loader=yaml.Loader)
 except yaml.YAMLError as err:
     raise IOError("Error reading yaml config")
