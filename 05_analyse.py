@@ -14,7 +14,7 @@ subject = handleSubjectArg()
 def getCodedEpochs(raw):
     evts,evts_dict = mne.events_from_annotations(raw)
     evt_plot = mne.viz.plot_events(evts, event_id=evts_dict, show=False)
-    addFigure(subject, evt_plot, "Event overview", "Analyse")
+    addFigure(subject, evt_plot, "Event overview before removal", "Analyse")
 
     ##### Remove epochs where reponse to stimulus has a wrong code (e.g. P3 code: 202)
     events_dict_inv = {v: k for k, v in evts_dict.items()}
@@ -41,6 +41,8 @@ def getCodedEpochs(raw):
     #Update events&event dict
     evts = np.delete(evts, wrong_events, axis=0)
     evts_dict = dict((k,v) for k, v in evts_dict.items() if v in evts[:,2])
+    evt_plot = mne.viz.plot_events(evts, event_id=evts_dict, show=False)
+    addFigure(subject, evt_plot, "Event overview after removal", "Analyse")
 
     #Check if cleaning successful 
     assert evts[:,2].all() != wrong_event_ids
