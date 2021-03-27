@@ -25,7 +25,8 @@ def task_01_preprocess():
             name=subject,
             targets=[fname.filt(subject=subject,fmin=config["bandpass_fmin"], fmax=config["bandpass_fmax"])],
             actions=["python 01_preprocess.py {sub}".format(sub=subject)],
-            uptodate=[True]        
+            uptodate=[True],
+            clean=True  
         )
 
 def task_02_clean():
@@ -35,7 +36,8 @@ def task_02_clean():
             name=subject,
             targets=[fname.cleaned(subject=subject)],
             actions=["python 02_cleaning.py {sub}".format(sub=subject)],
-            file_dep=[fname.filt(subject=subject,fmin=config["bandpass_fmin"], fmax=config["bandpass_fmax"])]
+            file_dep=[fname.filt(subject=subject,fmin=config["bandpass_fmin"], fmax=config["bandpass_fmax"])],
+            clean=True
         )
 
 def task_03_ica():
@@ -45,7 +47,8 @@ def task_03_ica():
             name=subject,
             targets=[fname.ica(subject=subject)],
             actions=["python 03_ica.py {sub}".format(sub=subject)],
-            file_dep=[fname.cleaned(subject=subject)]
+            file_dep=[fname.cleaned(subject=subject)],
+            clean=True
         )
 
 def task_04_reference():
@@ -55,7 +58,8 @@ def task_04_reference():
             name=subject,
             targets=[fname.reference(subject=subject)],
             actions=["python 04_reference.py {sub}".format(sub=subject)],
-            file_dep=[fname.ica(subject=subject)]
+            file_dep=[fname.ica(subject=subject)],
+            clean=True
         )
 
 def task_05_analyse():
@@ -63,9 +67,10 @@ def task_05_analyse():
     for subject in subjects:
         yield dict(
             name=subject,
-            targets=[fname.evokedFrequent(subject=subject), fname.evokedRare(subject=subject), fname.evokedPeaks(subject=subject)],
+            targets=[fname.evokedFrequent(subject=subject), fname.evokedRare(subject=subject), fname.epochs(subject=subject)],
             actions=["python 05_analyse.py {sub}".format(sub=subject)],
-            file_dep=[fname.reference(subject=subject)]
+            file_dep=[fname.reference(subject=subject)],
+            clean=True
         )
 
 def task_06_grandAverage():
