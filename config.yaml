@@ -1,6 +1,9 @@
 #task
 task: "P3"
 
+#electrode to pick
+pick: "Pz"
+
 #subjects to analyse
 subjects_numbers: 
   - "002"

@@ -70,8 +70,8 @@ raw = readRawFif(fname.reference(subject=subject))
 
 epochs= getCodedEpochs(raw)
 
-fig_rare_mean = epochs["rare"].plot_image(combine='mean', picks="Pz", show=False, title="Rare Stimulus")
-fig_frequent_mean = epochs["frequent"].plot_image(combine='mean', picks="Pz", show=False, title="Frequent Stimulus")
+fig_rare_mean = epochs["rare"].plot_image(combine='mean', picks=config["pick"], show=False, title="Rare Stimulus")
+fig_frequent_mean = epochs["frequent"].plot_image(combine='mean', picks=config["pick"], show=False, title="Frequent Stimulus")
 
 rare_evoked = epochs["rare"]
 frequent_evoked = epochs["frequent"]
@@ -81,7 +81,7 @@ difference_wave = mne.combine_evoked([rare_evoked.average(),
 
 average = {"rare": rare_evoked.average(), "frequent": frequent_evoked.average(), "difference": difference_wave}
 
-fig_evokeds = mne.viz.plot_compare_evokeds(average, picks="Pz", show=False)
+fig_evokeds = mne.viz.plot_compare_evokeds(average, picks=config["pick"], show=False)
 
 #difference plot
 
@@ -106,16 +106,16 @@ with open(fname.evokedPeaks(subject=subject)) as json_file:
     evoked_peaks = json.load(json_file)
     subject_peaks = {}
     subject_peaks[subject] = {"rare": {}, "frequent": {}}
-    subject_peaks[subject]["rare"]["peak"] = rare_evoked.load_data().pick("Pz").average().get_peak(ch_type="eeg")
-    subject_peaks[subject]["frequent"]["peak"] = frequent_evoked.load_data().pick("Pz").average().get_peak(ch_type="eeg")
+    subject_peaks[subject]["rare"]["peak"] = rare_evoked.load_data().pick(config["pick"]).average().get_peak(ch_type="eeg")
+    subject_peaks[subject]["frequent"]["peak"] = frequent_evoked.load_data().pick(config["pick"]).average().get_peak(ch_type="eeg")
     evoked_peaks[subject] = subject_peaks[subject]
     writeJson(evoked_peaks)
 
 
 ##write epoch objects
 epochs.save(fname.epochs(subject=subject), overwrite=True)
-rare_evoked.load_data().pick("Pz").average().save(fname.evokedRare(subject=subject))
-frequent_evoked.load_data().pick("Pz").average().save(fname.evokedFrequent(subject=subject))
+rare_evoked.load_data().pick(config["pick"]).average().save(fname.evokedRare(subject=subject))
+frequent_evoked.load_data().pick(config["pick"]).average().save(fname.evokedFrequent(subject=subject))
 
 #RQ: On which ERP-peaks do we find major difference between the conditions
 #statistically test via linear regression

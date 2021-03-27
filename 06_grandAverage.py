@@ -28,8 +28,8 @@ for subject in subjects:
         evoked_frequent_list.append(epoch["frequent"].average())
 
         #get peaks
-        _,_,peak_rare = epoch["rare"].average().pick("Pz").get_peak(return_amplitude=True)
-        _,_,peak_frequent = epoch["frequent"].average().pick("Pz").get_peak(return_amplitude=True)
+        _,_,peak_rare = epoch["rare"].average().pick(config["pick"]).get_peak(return_amplitude=True)
+        _,_,peak_frequent = epoch["frequent"].average().pick(config["pick"]).get_peak(return_amplitude=True)
         peak_list.append([peak_rare, peak_frequent])
 
     except FileNotFoundError:
@@ -43,7 +43,7 @@ difference_wave = mne.combine_evoked([rareAverage,
 
 average = {"rare": rareAverage, "frequent": frequentAverage, "difference": difference_wave}
 
-fig_evokeds = mne.viz.plot_compare_evokeds(average, picks="Pz", show=False)
+fig_evokeds = mne.viz.plot_compare_evokeds(average, picks=config["pick"], show=False)
 
 
 ###t-test

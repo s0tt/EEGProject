@@ -96,5 +96,5 @@ if os.path.isfile(f_filter):
 
     #from matplotlib import pyplot as plt
     # compare
-    fig_evoked = mne.viz.plot_compare_evokeds({'Raw:':epochs.average(),'Manual Clean:':epochs_manual.average(),'Peak-To-Peak:':epochs_thresh.average()},picks="Pz", show=False)
+    fig_evoked = mne.viz.plot_compare_evokeds({'Raw:':epochs.average(),'Manual Clean:':epochs_manual.average(),'Peak-To-Peak:':epochs_thresh.average()},picks=config["pick"], show=False)
     addFigure(subject, fig_evoked, "Evoked potential:", "Preprocess")
