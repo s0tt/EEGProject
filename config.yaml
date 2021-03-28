@@ -17,7 +17,6 @@ isPrecomputeMode: True #if TRUE: from step 04 on use precomputed semester projec
 isSpaceSaveMode: False #When true deletes the .fif of the last step after it was processed --> Save disk space
 
 # Band-pass filter limits
-#according to https://mne.tools/dev/auto_tutorials/preprocessing/plot_40_artifact_correction_ica.html
 bandpass_fmin: 0.5  # Hz
 bandpass_fmax: 50  # Hz
 nr_filt_cycles: 1 #nr of filter cycles
@@ -28,6 +27,8 @@ reject_subject_config:  200
 # ICA
 nr_ica_components: 20
 ica_method: "picard"
+
+#according to https://mne.tools/dev/auto_tutorials/preprocessing/plot_40_artifact_correction_ica.html
 freq_highpass_ica: 1
 subject_ica_channels: {"002": [2, 10],
                        "019": [1],
