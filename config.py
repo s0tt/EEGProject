@@ -36,8 +36,8 @@ fname.add('log', '{subjects_dir}/mne-log.txt')
 
 
 # Filenames for data files
-fname.add('filt', '{subject_dir}/filt-{fmin}-{fmax}-raw_sss.fif')
-fname.add('cleaned', '{subject_dir}/cleaned-raw.fif')
+fname.add('filt', '{subject_dir}/{subject}-filtered-raw_sss.fif')
+fname.add('cleaned', '{subject_dir}/{subject}-cleaned-raw.fif')
 # there seem to be problems with read anntoations in .csv format --> use .txt for now
 fname.add('cleanedTxt', '{subject_dir}/raw-manual_clean-annotations.txt')
 fname.add('ica', '{subject_dir}/{subject}-ica-raw.fif')

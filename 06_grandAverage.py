@@ -7,15 +7,14 @@ from matplotlib import pyplot as plt
 from utils import handleSubjectArg, readRawFif, addFigure
 import json, os
 import numpy as np
+import scipy.stats as stats
 
-parser = argparse.ArgumentParser()
-parser.add_argument('subjects',metavar='subs', nargs='+',help='Subject list')
-args = parser.parse_args()
-subjects = args.subjects
+subjects = handleSubjectArg(multiSub=True)
 
+
+peak_list = []
 evoked_rare_list = []
 evoked_frequent_list = []
-peak_list = []
 
 for subject in subjects:
     try:
@@ -25,8 +24,8 @@ for subject in subjects:
 
         #get peaks
         difference_wave = mne.combine_evoked([epoch["rare"].average(),epoch["frequent"].average()],weights=[1, -1])
-        _,peak_latency,peak_frequent = difference_wave.pick(config["pick"]).crop(tmin=0.35, tmax= 0.6).get_peak(return_amplitude=True)
-        peak_list.append([peak_frequent, 0])
+        _,peak_latency,peak_amplitude = difference_wave.pick(config["pick"]).crop(tmin=0.35, tmax= 0.6).get_peak(return_amplitude=True)
+        peak_list.append(peak_amplitude)
 
     except FileNotFoundError:
         print("Please run step 05 for all subject before computing the grand average")
@@ -39,12 +38,15 @@ difference_wave = mne.combine_evoked([rare_average,
 
 average = {"rare": rare_average, "frequent": frequent_average, "difference": difference_wave}
 
-fig_evokeds = mne.viz.plot_compare_evokeds(average, picks=config["pick"], show=True)
+fig_evokeds = mne.viz.plot_compare_evokeds(average, picks=config["pick"], show=True if config["isDialogeMode"] else False)
+addFigure(None, fig_evokeds, "Evoked Plot ","Peak-Analysis", totalReport=True)
 
+#RQ: On which ERP-peaks do we find major difference between the conditions
+#statistically test with t-test
+fig_hist, ax = plt.subplots()
+ax.hist(peak_list, bins=15)
+addFigure(None, fig_hist, "Peak histogram","Peak-Analysis", totalReport=True)
+t_values, p_value = stats.ttest_1samp(peak_list, 0.0, alternative="greater")
 
-###t-test
-data = np.stack(peak_list)
-hist = plt.hist(data, bins=15)
-t_values, clusters, cluster_p_values, h0 = mne.stats.permutation_cluster_1samp_test(data)
-print("paired permutation cluster t-test p-value:", cluster_p_values)
-print("End")
+print("T-test: p-value {} {} {} alpha".format(p_value, ">=" if p_value > config["alpha"] else "<", config["alpha"]))
+print("Statistically it is {} that the {} ERP is present given this data".format("likely" if p_value < config["alpha"] else "unlikely", config["task"]))

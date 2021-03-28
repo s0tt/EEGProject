@@ -40,3 +40,6 @@ event_coding: {
     "frequent": [12, 13, 14, 15, 21, 23, 24, 25, 31, 32, 34, 35, 41, 42, 43, 45, 51, 52, 53, 54],
     "response": [201, 202] #correct response, wrong reponse --> Order is important here for my functions
 }
+
+# ERP significane testing
+alpha: 0.05
