@@ -28,6 +28,17 @@ def manualCleaning(raw, subject):
 def interpolateBads(raw):
     #interpolate bad channels if there exist some
     if len(raw.info['bads']) != 0:
+        eeg_data = raw.copy()
+        eeg_data.crop(tmin=0, tmax=5).pick_types(meg=False, eeg=True, exclude=[])
+        eeg_data.annotations.crop(tmin=9, tmax=10) #little trick to remove the annotations from this plot data
+        eeg_data_interp = eeg_data.copy().interpolate_bads(reset_bads=False)
+
+        #VISUAL CHECK: interpolated channel check if the .interpolate_bads works as expected
+        for title, data in zip(['before', 'after'], [eeg_data, eeg_data_interp]):
+            fig = data.plot(butterfly=True, color='#00000022', bad_color='r', show=False, show_scalebars=False, show_scrollbars=False)
+            fig.suptitle("Bad channel interpolation: "+title, size='xx-large', weight='bold')
+            addFigure(subject, fig, "Bad channel interpolation: "+title, "Preprocess")
+
         raw.interpolate_bads()
 
 

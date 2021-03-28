@@ -9,6 +9,7 @@ subject = handleSubjectArg()
 
 raw = readRawFif(fname.reference(subject=subject))
 
+#get event coded epochs, bad channels are by default removed by MNE
 epochs= getCodedEpochs(raw, printPlot=True, subject=subject, reject_by_annotation=True)
 
 # fig_rare_mean = epochs["rare"].plot_image(combine='mean', picks=config["pick"], show=False, title="Rare Stimulus")
@@ -26,7 +27,7 @@ average = {"rare": rare_evoked.average(), "frequent": frequent_evoked.average(),
 fig_evokeds = mne.viz.plot_compare_evokeds(average, picks=config["pick"], show=False)
 
 # plot difference wave joint
-fig_joint = difference_wave.plot_joint(times=[0.15], title='Rare - Frequent', picks="eeg", show=False)
+fig_joint = difference_wave.plot_joint(title='Rare - Frequent', picks="eeg", show=False)
 
 addFigure(subject, fig_evokeds, "Evokeds for different conditions", "Analyse")
 addFigure(subject, fig_joint, "Difference wave joint", "Analyse")
