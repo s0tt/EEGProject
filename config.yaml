@@ -13,7 +13,7 @@ subjects_numbers:
 #execution mode
 isOverwrite: False #overwrite all existing data units with newly generated ones
 isDialogeMode: False #manual mode with opens dialogs windows for example for manual cleaning
-isPrecomputeMode: True #if TRUE: from step 04 on use precomputed semester project data 
+isPrecomputeMode: False #if TRUE: from step 04 on use precomputed semester project data 
 isSpaceSaveMode: False #When true deletes the .fif of the last step after it was processed --> Save disk space
 
 # Band-pass filter limits
@@ -30,7 +30,7 @@ ica_method: "picard"
 
 #according to https://mne.tools/dev/auto_tutorials/preprocessing/plot_40_artifact_correction_ica.html
 freq_highpass_ica: 1
-subject_ica_channels: {"002": [2, 10],
+subject_ica_channels: {"002": [1, 9],
                        "019": [1],
                        "037": [0]}
 
