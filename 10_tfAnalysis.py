@@ -23,12 +23,13 @@ subjects_induced_frequent_list = []
 
 for subject in subjects:
     epochs = mne.read_epochs(fname.epochs(subject=subject))
+    epochs.equalize_event_counts(["rare", "frequent"])
     epochs.resample(256, npad='auto')
     #evoked_difference = mne.combine_evoked([epochs["rare"].average(),epochs["frequent"].average()],weights=[1, -1])
-    epochs_induced_rare = epochs["rare"].copy()
-    epochs_induced_frequent = epochs["frequent"].copy()
-    epochs_induced_rare.subtract_evoked()
-    epochs_induced_frequent.subtract_evoked()
+    epochs_induced = epochs.copy()
+    epochs_induced.subtract_evoked()
+    epochs_induced_rare = epochs_induced["rare"]
+    epochs_induced_frequent = epochs_induced["frequent"]
     
 
     freq = np.logspace(*np.log10([5, 50]), num=25)
@@ -164,6 +165,8 @@ print("#################### Cluster permutation t-test: ###############\n", clus
 
 
 ############# plot permutation t test on average #################################
+
+
 t_values, clusters, cluster_p_values, h0 = mne.stats.permutation_cluster_test([induced_difference_average._data, np.zeros(shape=induced_difference_average._data.shape)])
 print("#################### Cluster permutation t-test: ###############\n", cluster_p_values)
 times = 1e3 * induced_difference_average.times
