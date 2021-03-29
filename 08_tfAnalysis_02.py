@@ -48,11 +48,10 @@ addFigure(None, fig_across_sub, "Subject average Total / Evoked / Induced  power
 
 
 difference_induced_stacked = np.stack([difference_induced.data[0] for difference_induced in difference_induced_list])
-
+zero_condition_stacked = np.stack([np.zeros(shape=difference_induced.data[0].shape) for difference_induced in difference_induced_list])
 
 ############# plot permutation t test on average #################################
-t_values, clusters, cluster_p_values, h0 = mne.stats.permutation_cluster_test([difference_induced_stacked, 
-                                                        np.zeros(shape=difference_induced_stacked.data[0])], threshold=2)
+t_values, clusters, cluster_p_values, h0 = mne.stats.permutation_cluster_test([difference_induced_stacked, zero_condition_stacked], threshold=2)
 
 
 print("#################### Cluster permutation t-test: ###############\n", cluster_p_values)

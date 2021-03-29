@@ -88,7 +88,7 @@ if os.path.isfile(f_filter):
         interpolateBads(raw)
 
     elif not config["isDialogeMode"]:
-        raise RuntimeError("No annotationscould be obtained. Use either interactiveMode/preComputeMode or provide manual clean file")
+        raise RuntimeError("No annotations could be obtained. Use either interactiveMode/preComputeMode or provide manual clean file")
 
 
 
