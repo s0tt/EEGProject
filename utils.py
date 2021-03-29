@@ -49,7 +49,7 @@ def readEventCoding():
             else:
                 normalLetterIds.append(key)
 
-def addFigure(sub, fig, caption, section, totalReport=False):
+def addFigure(sub, fig, caption, section, totalReport=False, **kwargs):
     if totalReport:
         f_report = fname.totalReport
         f_report_html = fname.totalReport_html
@@ -62,7 +62,8 @@ def addFigure(sub, fig, caption, section, totalReport=False):
             fig,
             captions=caption,
             section=section,
-            replace=True
+            replace=True,
+            **kwargs
         )
         report.save(f_report_html, overwrite=True,
                     open_browser=False)
