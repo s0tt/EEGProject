@@ -1,5 +1,5 @@
 #task
-task: "N170"
+task: "P3"
 
 #electrode to pick
 pick: "Pz"
@@ -37,6 +37,7 @@ subject_ica_channels: {"002": [1, 9],
 #Reference
 reference: ["P9", "P10"]
 
+
 # Event coding
 event_coding: {
     "cond1": [11, 22, 33, 44, 55], #rare
@@ -48,6 +49,14 @@ event_names: {
     "cond2": "frequent"
 }
 
-# ERP significane testing
+# ERP significance testing
 alpha: 0.05
 peak_window: [0.3, 0.6] #[tmin, tmax] time window for peak finding in grand average peak analysis
+
+
+#Time-frequency Analysis
+
+#Decoding Analysis
+t_start: 0.0
+t_end: 1.0
+t_sample: 0.05
