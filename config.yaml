@@ -13,7 +13,7 @@ subjects_numbers:
 #execution mode
 isOverwrite: False #overwrite all existing data units with newly generated ones
 isDialogeMode: False #manual mode with opens dialogs windows for example for manual cleaning
-isPrecomputeMode: False #if TRUE: from step 04 on use precomputed semester project data 
+isPrecomputeMode: True #if TRUE: from step 04 on use precomputed semester project data 
 isSpaceSaveMode: False #When true deletes the .fif of the last step after it was processed --> Save disk space
 
 # Band-pass filter limits
@@ -34,12 +34,20 @@ subject_ica_channels: {"002": [1, 9],
                        "019": [1],
                        "037": [0]}
 
+#Reference
+reference: ["P9", "P10"]
+
 # Event coding
 event_coding: {
-    "rare": [11, 22, 33, 44, 55],
-    "frequent": [12, 13, 14, 15, 21, 23, 24, 25, 31, 32, 34, 35, 41, 42, 43, 45, 51, 52, 53, 54],
+    "cond1": [11, 22, 33, 44, 55], #rare
+    "cond2": [12, 13, 14, 15, 21, 23, 24, 25, 31, 32, 34, 35, 41, 42, 43, 45, 51, 52, 53, 54], #frequent
     "response": [201, 202] #correct response, wrong reponse --> Order is important here for my functions
+}
+event_names: {
+    "cond1": "rare",
+    "cond2": "frequent"
 }
 
 # ERP significane testing
 alpha: 0.05
+peak_window: [0.3, 0.6] #[tmin, tmax] time window for peak finding in grand average peak analysis
