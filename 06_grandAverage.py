@@ -7,47 +7,51 @@ from matplotlib import pyplot as plt
 from utils import handleSubjectArg, readRawFif, addFigure
 import json, os
 import numpy as np
+import scipy.stats as stats
 
-parser = argparse.ArgumentParser()
-parser.add_argument('subjects',metavar='subs', nargs='+',help='Subject list')
-args = parser.parse_args()
-subjects = args.subjects
+subjects = handleSubjectArg(multiSub=True)
 
-evoked_rare_list = []
-evoked_frequent_list = []
+
 peak_list = []
+evoked_cond1_list = []
+evoked_cond2_list = []
 
 for subject in subjects:
     try:
-        # evoked_rare_list.append(mne.Evoked(fname.evokedRare(subject=subject)))
-        # evoked_frequent_list.append(mne.Evoked(fname.evokedFrequent(subject=subject)))
-        # evoked_rare_list.append(mne.io.read_raw_fif(fname.evokedRare(subject=subject)))
-        # evoked_rare_list.append(mne.io.read_raw_fif(fname.evokedRare(subject=subject)))
         epoch = mne.read_epochs(fname.epochs(subject=subject))
-        evoked_rare_list.append(epoch["rare"].average())
-        evoked_frequent_list.append(epoch["frequent"].average())
+        #epoch.equalize_event_counts(["cond1", "cond2"])# TODO: decide if this to keep equalize event counts
+        evoked_cond1_list.append(epoch["cond1"].average())
+        evoked_cond2_list.append(epoch["cond2"].average())
 
         #get peaks
-        _,_,peak_rare = epoch["rare"].average().pick(config["pick"]).get_peak(return_amplitude=True)
-        _,_,peak_frequent = epoch["frequent"].average().pick(config["pick"]).get_peak(return_amplitude=True)
-        peak_list.append([peak_rare, peak_frequent])
+        difference_wave = mne.combine_evoked([epoch["cond1"].average(),epoch["cond2"].average()],weights=[1, -1])
+        _,peak_latency,peak_amplitude = difference_wave.pick(config["pick"]).crop(tmin=config["peak_window"][0], tmax= config["peak_window"][1]).get_peak(return_amplitude=True)
+        peak_list.append(peak_amplitude)
 
     except FileNotFoundError:
         print("Please run step 05 for all subject before computing the grand average")
 
-rareAverage = mne.grand_average(evoked_rare_list)
-frequentAverage = mne.grand_average(evoked_frequent_list)
-difference_wave = mne.combine_evoked([rareAverage,
-                                  frequentAverage],
+cond1_average = mne.grand_average(evoked_cond1_list)
+cond2_average = mne.grand_average(evoked_cond2_list)
+difference_wave = mne.combine_evoked([cond1_average,
+                                  cond2_average],
                                  weights=[1, -1])
 
-average = {"rare": rareAverage, "frequent": frequentAverage, "difference": difference_wave}
+average = {config["event_names"]["cond1"]: cond1_average, config["event_names"]["cond2"]: cond2_average, "difference": difference_wave}
 
-fig_evokeds = mne.viz.plot_compare_evokeds(average, picks=config["pick"], show=False)
+fig_evokeds = mne.viz.plot_compare_evokeds(average, picks=config["pick"], show=True if config["isDialogeMode"] else False)
 
 
-###t-test
-data = np.stack(peak_list)
-hist = plt.hist(data, bins=10)
-t_values, clusters, cluster_p_values, h0 = mne.stats.permutation_cluster_1samp_test(data)
-print("End")
+#RQ: On which ERP-peaks do we find major difference between the conditions
+#statistically test with t-test
+fig_hist, ax = plt.subplots()
+ax.hist(peak_list, bins=15)
+
+t_values, p_value = stats.ttest_1samp(peak_list, 0.0, alternative="greater")
+
+
+result_str = "T-test: p-value {} {} {} alpha".format(p_value, ">=" if p_value > config["alpha"] else "<", config["alpha"])
+print(result_str)
+print("Statistically it is {} that the {} ERP is present given this data".format("significant" if p_value < config["alpha"] else "unsignificant", config["task"]))
+addFigure(None, fig_evokeds, "Evoked Plot ","Peak-Analysis", totalReport=True, comments=result_str)
+addFigure(None, fig_hist, "Peak histogram","Peak-Analysis", totalReport=True)

@@ -1,7 +1,7 @@
 #TODO: Implement pipeline
 from config import config, fname
 
-all_subjects = [str(sub).zfill(3) for sub in range(1,41)]#[1, 3, 4, 5, 6]]
+all_subjects = [str(sub).zfill(3) for sub in range(1,41)]
 
 ###set which subjects to compute
 #subjects = config["subjects_numbers"]
@@ -14,17 +14,19 @@ def task_00_init():
             name = subject,
             actions=["python 00_init.py {sub}".format(sub=subject)],
             targets=[fname.subject_dir(subject=subject)],
-            uptodate=[True]
+            uptodate=[True],
+            clean=True
         )
 
 
-def task_01_preprocess():
-    """Step 01: Preprocess EEG data by filtering"""
+def task_01_filter():
+    """Step 01: Filter EEG data"""
     for subject in subjects:
         yield dict(
             name=subject,
-            targets=[fname.filt(subject=subject,fmin=config["bandpass_fmin"], fmax=config["bandpass_fmax"])],
-            actions=["python 01_preprocess.py {sub}".format(sub=subject)],
+            targets=[fname.filt(subject=subject,fmin=config["bandpass_fmin"], fmax=config["bandpass_fmax"]), 
+                        fname.report_html(subject=subject), fname.report(subject=subject)],
+            actions=["python 01_filtering.py {sub}".format(sub=subject)],
             uptodate=[True],
             clean=True  
         )
@@ -67,7 +69,7 @@ def task_05_analyse():
     for subject in subjects:
         yield dict(
             name=subject,
-            targets=[fname.evokedFrequent(subject=subject), fname.evokedRare(subject=subject), fname.epochs(subject=subject)],
+            targets=[fname.epochs(subject=subject)],
             actions=["python 05_analyse.py {sub}".format(sub=subject)],
             file_dep=[fname.reference(subject=subject)],
             clean=True
@@ -78,5 +80,5 @@ def task_06_grandAverage():
     return dict(
             targets=[fname.totalReport],
             actions=["python 06_grandAverage.py {sub}".format(sub= ' '.join([subject for subject in subjects]))],
-            file_dep=[fname.evokedFrequent(subject=subject) for subject in subjects] + [fname.evokedRare(subject=subject) for subject in subjects]
+            file_dep=[fname.epochs(subject=subject) for subject in subjects]
         )

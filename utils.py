@@ -1,12 +1,12 @@
 import mne
 from mne_bids import (BIDSPath, read_raw_bids)
 import ccs_eeg_utils
-import fnames
 import json
 import re
 import argparse
 from config import config, fname
-
+import warnings
+import numpy as np
 
 def readRawData(subject_id,task=config["task"],session=config["task"], datatype='eeg', suffix='eeg', bids_root="local/bids"):
     bids_path = BIDSPath(subject=subject_id,task=config["task"],session=config["task"],
@@ -49,21 +49,90 @@ def readEventCoding():
             else:
                 normalLetterIds.append(key)
 
-def addFigure(sub, fig, caption, section):
-    with mne.open_report(fname.report(subject=sub)) as report:
+def addFigure(sub, fig, caption, section, totalReport=False, **kwargs):
+    if totalReport:
+        f_report = fname.totalReport
+        f_report_html = fname.totalReport_html
+    else:
+        f_report = fname.report(subject=sub)
+        f_report_html = fname.report_html(subject=sub)
+    
+    with mne.open_report(f_report) as report:
         report.add_figs_to_section(
             fig,
             captions=caption,
             section=section,
-            replace=True
+            replace=True,
+            **kwargs
         )
-        report.save(fname.report_html(subject=sub), overwrite=True,
+        report.save(f_report_html, overwrite=True,
                     open_browser=False)
     
-def handleSubjectArg():
+def handleSubjectArg(multiSub=False):
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('subject', metavar='sub###', help='The subject to process')
-    args = parser.parse_args()
-    subject = args.subject
-    print('Processing subject:', subject)
-    return subject
+
+    if multiSub:
+        parser = argparse.ArgumentParser()
+        parser.add_argument('subjects',metavar='subs', nargs='+',help='Subject list')
+        args = parser.parse_args()
+        subjects = args.subjects
+    else:
+        parser.add_argument('subject', metavar='sub', help='Subject to process')
+        args = parser.parse_args()
+        subjects = args.subject
+    print('Processing subjects:', subjects)
+    return subjects
+
+def getCodedEpochs(raw, printPlot=False, subject=None, **kwargs):
+    evts,evts_dict = mne.events_from_annotations(raw)
+    evt_plot = mne.viz.plot_events(evts, event_id=evts_dict, show=False)
+    if printPlot:
+        addFigure(subject, evt_plot, "Event overview before removal", "Analyse") 
+
+    ##### Remove epochs where reponse to stimulus has a wrong code (e.g. 202)
+    events_dict_inv = {value: key for key, value in evts_dict.items()}
+
+    #Assert correct inversion
+    assert len(evts_dict) == len(events_dict_inv)
+
+    wrong_response_code = config["event_coding"]["response"][1]
+    wrong_event_ids = evts_dict[f"response:{wrong_response_code}"]
+    wrong_events = []
+    if evts[0][2] == wrong_event_ids:
+        wrong_events.append(0)
+
+    #Check for all events if wrong response happened
+    for i in range(len(evts)-1):
+        if evts[i+1][2] == wrong_event_ids:
+            prev_event_id = evts[i][2]
+            prev_event_type = events_dict_inv[prev_event_id]
+            if prev_event_type.startswith("stimulus"):
+                # Mark event with stimulus that caused wrong response
+                wrong_events.append(i)
+            # Mark event with wrong response
+            wrong_events.append(i+1)
+
+    #Update events&event dict
+    evts = np.delete(evts, wrong_events, axis=0)
+    evts_dict = dict((key,value) for key, value in evts_dict.items() if value in evts[:,2])
+    evt_plot = mne.viz.plot_events(evts, event_id=evts_dict, show=False)
+    if printPlot:
+        addFigure(subject, evt_plot, "Event overview after removal", "Analyse")
+
+    #Check if cleaning successful 
+    assert evts[:,2].all() != wrong_event_ids
+
+    ###### Adapt event coding #####
+    event_coding = config["event_coding"]
+    coding_mapping = {}
+    for coding_key in list(event_coding.keys()):
+        wanted_codes = event_coding[coding_key]
+        for key in evts_dict.keys():
+            for code in wanted_codes:
+                if(str(code) == key.split(":")[1]):
+                    coding_mapping[str(coding_key)+"/"+str(code)] = evts_dict[key]
+
+    #issue warning for missing bad segment annotations before returning the Epoch object if no BAD_ tag is found
+    if not any(description.startswith('BAD_') for description in raw.annotations.description):
+        warnings.warn("No BAD_ segments found. Is this intended?")
+    return mne.Epochs(raw,evts,event_id=coding_mapping,tmin=-0.1,tmax=1, **kwargs)

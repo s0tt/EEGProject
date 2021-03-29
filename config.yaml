@@ -13,11 +13,10 @@ subjects_numbers:
 #execution mode
 isOverwrite: False #overwrite all existing data units with newly generated ones
 isDialogeMode: False #manual mode with opens dialogs windows for example for manual cleaning
-isPrecomputeMode: True #if TRUE: from step 04 on use precomputed semester project data 
+isPrecomputeMode: False #if TRUE: from step 04 on use precomputed semester project data 
 isSpaceSaveMode: False #When true deletes the .fif of the last step after it was processed --> Save disk space
 
 # Band-pass filter limits
-#according to https://mne.tools/dev/auto_tutorials/preprocessing/plot_40_artifact_correction_ica.html
 bandpass_fmin: 0.5  # Hz
 bandpass_fmax: 50  # Hz
 nr_filt_cycles: 1 #nr of filter cycles
@@ -28,8 +27,10 @@ reject_subject_config:  200
 # ICA
 nr_ica_components: 20
 ica_method: "picard"
+
+#according to https://mne.tools/dev/auto_tutorials/preprocessing/plot_40_artifact_correction_ica.html
 freq_highpass_ica: 1
-subject_ica_channels: {"002": [2, 10],
+subject_ica_channels: {"002": [1, 9],
                        "019": [1],
                        "037": [0]}
 
@@ -39,3 +40,6 @@ event_coding: {
     "frequent": [12, 13, 14, 15, 21, 23, 24, 25, 31, 32, 34, 35, 41, 42, 43, 45, 51, 52, 53, 54],
     "response": [201, 202] #correct response, wrong reponse --> Order is important here for my functions
 }
+
+# ERP significane testing
+alpha: 0.05
