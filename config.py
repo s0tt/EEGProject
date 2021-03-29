@@ -19,7 +19,7 @@ else:
 
 ##load YAML config to not polut namespace with python config variables
 try:     
-    with open("config.yaml", "r") as config_file:
+    with open("config_n170.yaml", "r") as config_file:
         config = yaml.load(config_file.read(), Loader=yaml.Loader)
 except yaml.YAMLError as err:
     raise IOError("Error reading yaml config")
@@ -48,6 +48,7 @@ fname.add('evokedPeaks','{subject_dir}/evoked-peaks.json')
 fname.add('epochs','{subject_dir}/{subject}-coded-epochs-epo.fif')
 fname.add('evokedRare','{subject_dir}/evoked-rare-ave.fif')
 fname.add('evokedFrequent','{subject_dir}/evoked-frequent-ave.fif')
+fname.add('decodingAnalysis', '{subject_dir}/decode-peaks.json')
 
 # Filenames for MNE reports
 fname.add('reports_dir', '{study_path}/reports/{task}'.format(study_path=study_path, task=config["task"]))
