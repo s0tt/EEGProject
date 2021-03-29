@@ -21,24 +21,24 @@ subject = handleSubjectArg()
 # we find that P9 and P10 provide cleaner signals than the traditional mastoid sites, but the resulting waveforms are otherwise nearly identical to mastoid- referenced data.
 # "
 # "If you plan to perform source modeling (either with EEG or combined EEG/MEG data), it is strongly recommended to use the average-reference-as-projection approach."
-# --> Still use average reference projection as it spreads forwards modeling error evenly
+
+''' function for rereferencing EEG data'''
 def rereference(raw, subject):
-    raw.set_eeg_reference('average', projection=True)
-    #TODO: Later compare several reference methods
-    #raw.set_eeg_reference(ref_channels=["P9", "P10"])
+    raw.set_eeg_reference(ref_channels=config["reference"], projection=True)
 
     raw.save(fname.reference(subject=subject), overwrite=True)
     if config["isSpaceSaveMode"]:
         os.remove(fname.ica(subject=subject))
 
+#load raw object ob previous step
 raw = readRawFif(fname.ica(subject=subject), preload=True)
-rereference(raw, subject)
-fig, axes = plt.subplots(1, 2)
-for title, proj, axis in zip(['Original', 'Average'], [False, True], axes):
-    axis = raw.plot(proj=proj, n_channels=len(raw), show=False)
-    # make room for title
-    axis.subplots_adjust(top=0.9)
-    axis.suptitle('{} reference'.format(title))
 
-addFigure(subject, raw.plot(proj=False, show=False), "Before referencing:", "Preprocess")
-addFigure(subject, raw.plot(proj=True, show=False), "After referencing:", "Preprocess")
+fig_before = raw.copy().pick(config["pick"]).plot(show=False)
+
+#perform referecing
+rereference(raw, subject)
+
+fig_after = raw.copy().pick(config["pick"]).plot(show=False)
+
+addFigure(subject, fig_before, "Before referencing:", "Preprocess")
+addFigure(subject, fig_after, "After referencing:", "Preprocess")
