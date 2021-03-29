@@ -29,7 +29,6 @@ def getEpochLabels(epochs):
     assert len(epochs.event_id) == len(events_dict_inv)
 
     event_labels = epochs.events[:,-1]
-    # Convert from evt_id to string, e.g. "faces/4"
     labels = [events_dict_inv[key].split("/")[0] for key in event_labels]
 
     # Change to integer rerpresentation: condition1 == 0 and condition2 == 1
@@ -58,7 +57,9 @@ if not os.path.exists(fname.decodingAnalysis(subject=subject)) and not config["i
     epochs = epochs.crop(tmin=-0.1, tmax=1.0)
     labels = getEpochLabels(epochs)
 
-
+    # decoding_types = {
+    #     "LogisticRegression": sklearn.linear_model.LogisticRegression(solver="lbfgs", max_iter=500)
+    # }
     models = (("LogisticRegression", sklearn.linear_model.LogisticRegression(solver="lbfgs", max_iter=500)),
                 ("SVM", sklearn.svm.LinearSVC()),)
 
