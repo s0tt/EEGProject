@@ -15,7 +15,7 @@ if config["isPrecomputeMode"]:
     raw_ica = ica.apply(raw, exclude=np.array(bad_components).astype(int))
 
 else:
-    ica = mne.preprocessing.ICA(n_components=config["nr_ica_components"], random_state=97, max_iter=800, method=config["ica_method"])
+    ica = mne.preprocessing.ICA(n_components=config["nr_ica_components"], random_state=0, max_iter=800, method=config["ica_method"])
 
     #ica specific high-pass filter with ~1hz to remove slow drifts
     # according to: https://mne.tools/dev/auto_tutorials/preprocessing/plot_40_artifact_correction_ica.html

@@ -24,8 +24,7 @@ subject = handleSubjectArg()
 
 ''' function for rereferencing EEG data'''
 def rereference(raw, subject):
-    #raw.set_eeg_reference('average', projection=True)
-    raw.set_eeg_reference(ref_channels=["P9", "P10"])
+    raw.set_eeg_reference(ref_channels=config["reference"], projection=True)
 
     raw.save(fname.reference(subject=subject), overwrite=True)
     if config["isSpaceSaveMode"]:

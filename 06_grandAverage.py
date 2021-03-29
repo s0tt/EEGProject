@@ -13,31 +13,31 @@ subjects = handleSubjectArg(multiSub=True)
 
 
 peak_list = []
-evoked_rare_list = []
-evoked_frequent_list = []
+evoked_cond1_list = []
+evoked_cond2_list = []
 
 for subject in subjects:
     try:
         epoch = mne.read_epochs(fname.epochs(subject=subject))
-        #epoch.equalize_event_counts(["rare", "frequent"])# TODO: decide if this to keep equalize event counts
-        evoked_rare_list.append(epoch["rare"].average())
-        evoked_frequent_list.append(epoch["frequent"].average())
+        #epoch.equalize_event_counts(["cond1", "cond2"])# TODO: decide if this to keep equalize event counts
+        evoked_cond1_list.append(epoch["cond1"].average())
+        evoked_cond2_list.append(epoch["cond2"].average())
 
         #get peaks
-        difference_wave = mne.combine_evoked([epoch["rare"].average(),epoch["frequent"].average()],weights=[1, -1])
+        difference_wave = mne.combine_evoked([epoch["cond1"].average(),epoch["cond2"].average()],weights=[1, -1])
         _,peak_latency,peak_amplitude = difference_wave.pick(config["pick"]).crop(tmin=config["peak_window"][0], tmax= config["peak_window"][1]).get_peak(return_amplitude=True)
         peak_list.append(peak_amplitude)
 
     except FileNotFoundError:
         print("Please run step 05 for all subject before computing the grand average")
 
-rare_average = mne.grand_average(evoked_rare_list)
-frequent_average = mne.grand_average(evoked_frequent_list)
-difference_wave = mne.combine_evoked([rare_average,
-                                  frequent_average],
+cond1_average = mne.grand_average(evoked_cond1_list)
+cond2_average = mne.grand_average(evoked_cond2_list)
+difference_wave = mne.combine_evoked([cond1_average,
+                                  cond2_average],
                                  weights=[1, -1])
 
-average = {"rare": rare_average, "frequent": frequent_average, "difference": difference_wave}
+average = {config["event_names"]["cond1"]: cond1_average, config["event_names"]["cond2"]: cond2_average, "difference": difference_wave}
 
 fig_evokeds = mne.viz.plot_compare_evokeds(average, picks=config["pick"], show=True if config["isDialogeMode"] else False)
 
