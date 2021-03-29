@@ -23,23 +23,56 @@ subjects_induced_frequent_list = []
 
 for subject in subjects:
     epochs = mne.read_epochs(fname.epochs(subject=subject))
+    epochs.resample(512, npad='auto')
     #evoked_difference = mne.combine_evoked([epochs["rare"].average(),epochs["frequent"].average()],weights=[1, -1])
     epochs_induced_rare = epochs["rare"].copy()
     epochs_induced_frequent = epochs["frequent"].copy()
     epochs_induced_rare.subtract_evoked()
     epochs_induced_frequent.subtract_evoked()
+    
 
     freq = np.logspace(*np.log10([5, 55]), num=25)
-    cycles = freq / 2.
+    cycles = 2#freq / 2.
+
+    #### generate power spectrum with morlet wavelets ####
+
+    power_rare= mne.time_frequency.tfr_morlet(epochs["rare"], freqs=freq, n_cycles=cycles, use_fft=True,
+                            return_itc=False, decim=3, n_jobs=n_jobs, picks=config["pick"], average=True)
+    
+    power_frequent= mne.time_frequency.tfr_morlet(epochs["frequent"], freqs=freq, n_cycles=cycles, use_fft=True,
+                        return_itc=False, decim=3, n_jobs=n_jobs, picks=config["pick"], average=True)
 
     power_induced_rare= mne.time_frequency.tfr_morlet(epochs_induced_rare, freqs=freq, n_cycles=cycles, use_fft=True,
-                            return_itc=False, decim=3, n_jobs=6, picks=config["pick"], average=True)
+                            return_itc=False, decim=3, n_jobs=n_jobs, picks=config["pick"], average=True)
 
     power_induced_frequent= mne.time_frequency.tfr_morlet(epochs_induced_frequent, freqs=freq, n_cycles=cycles, use_fft=True,
-                            return_itc=False, decim=3, n_jobs=6, picks=config["pick"], average=True)
+                            return_itc=False, decim=3, n_jobs=n_jobs, picks=config["pick"], average=True)
 
+
+    power_evoked_rare = mne.combine_evoked([power_rare, power_induced_rare],weights=[1,-1])
+    power_evoked_frequent = mne.combine_evoked([power_frequent, power_induced_frequent],weights=[1,-1])
+
+    difference_total = mne.combine_evoked([power_rare,power_frequent],weights=[1,-1])
+    difference_evoked = mne.combine_evoked([power_evoked_rare,power_evoked_frequent],weights=[1,-1])
+    difference_induced = mne.combine_evoked([power_induced_rare,power_induced_frequent],weights=[1,-1])
+
+    fig, axs = plt.subplots(1, 3)
+
+    #### Plot section ####
+
+    mode = "percent"
+    baseline = [-0.5, 0]
+    #baseline = None
+    cmin = -1
+    cmax = 1
+    difference_total.plot(axes=axs[0],baseline=baseline,picks=config["pick"],mode=mode,vmin=cmin,vmax=cmax, show=False,title="TF Total difference at {}".format(config["pick"]))
+    difference_evoked.plot(axes=axs[1], baseline=baseline,picks=config["pick"],mode=mode,vmin=cmin,vmax=cmax, show=False,title="TF Evoked difference at {}".format(config["pick"]))
+    difference_induced.plot(axes=axs[2], baseline=baseline,picks=config["pick"],mode=mode,vmin=cmin,vmax=cmax, show=False,title="TF Induced difference at {}".format(config["pick"]))
+    fig_induced = difference_induced.plot(baseline=baseline,picks=config["pick"],mode=mode,vmin=cmin,vmax=cmax, show=False,title="TF Difference Induced at {}".format(config["pick"]))
+
+    plt.show()
     #plot power spectrum
-    fig_psd = epochs.plot_psd(fmin=2., fmax=40., average=True, spatial_colors=False, show=False)
+    fig_psd = epochs.plot_psd(fmin=2., fmax=40., average=True, spatial_colors=False, show=True)
     addFigure(subject, fig_psd, "Power spectrum of epochs", "Time-Frequency")
 
     # f, ax = plt.subplots()
@@ -71,7 +104,7 @@ for subject in subjects:
     #                        return_itc=False, decim=3, n_jobs=6, picks=config["pick"], average=True)
     
     
-    difference_induced = mne.combine_evoked([power_induced_rare,power_induced_frequent],weights=[1,-1])
+    #difference_induced = mne.combine_evoked([power_induced_rare,power_induced_frequent],weights=[1,-1])
 
 
 
