@@ -167,7 +167,7 @@ print("#################### Cluster permutation t-test: ###############\n", clus
 ############# plot permutation t test on average #################################
 
 
-t_values, clusters, cluster_p_values, h0 = mne.stats.permutation_cluster_test([induced_difference_average._data, np.zeros(shape=induced_difference_average._data.shape)])
+t_values, clusters, cluster_p_values, h0 = mne.stats.permutation_cluster_test([induced_difference_average._data, np.zeros(shape=induced_difference_average._data.shape)], threshold=2)
 print("#################### Cluster permutation t-test: ###############\n", cluster_p_values)
 times = 1e3 * induced_difference_average.times
 plt.figure()

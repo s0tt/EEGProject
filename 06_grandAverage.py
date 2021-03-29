@@ -25,7 +25,7 @@ for subject in subjects:
 
         #get peaks
         difference_wave = mne.combine_evoked([epoch["rare"].average(),epoch["frequent"].average()],weights=[1, -1])
-        _,peak_latency,peak_amplitude = difference_wave.pick(config["pick"]).crop(tmin=0.30, tmax= 0.6).get_peak(return_amplitude=True)
+        _,peak_latency,peak_amplitude = difference_wave.pick(config["pick"]).crop(tmin=config["peak_window"][0], tmax= config["peak_window"][1]).get_peak(return_amplitude=True)
         peak_list.append(peak_amplitude)
 
     except FileNotFoundError:
