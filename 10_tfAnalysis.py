@@ -23,7 +23,7 @@ subjects_induced_frequent_list = []
 
 for subject in subjects:
     epochs = mne.read_epochs(fname.epochs(subject=subject))
-    epochs.resample(512, npad='auto')
+    epochs.resample(256, npad='auto')
     #evoked_difference = mne.combine_evoked([epochs["rare"].average(),epochs["frequent"].average()],weights=[1, -1])
     epochs_induced_rare = epochs["rare"].copy()
     epochs_induced_frequent = epochs["frequent"].copy()
@@ -31,8 +31,9 @@ for subject in subjects:
     epochs_induced_frequent.subtract_evoked()
     
 
-    freq = np.logspace(*np.log10([5, 55]), num=25)
-    cycles = 2#freq / 2.
+    freq = np.logspace(*np.log10([5, 50]), num=25)
+    cycles = freq / 2.
+    #cycles = 2
 
     #### generate power spectrum with morlet wavelets ####
 
@@ -56,23 +57,43 @@ for subject in subjects:
     difference_evoked = mne.combine_evoked([power_evoked_rare,power_evoked_frequent],weights=[1,-1])
     difference_induced = mne.combine_evoked([power_induced_rare,power_induced_frequent],weights=[1,-1])
 
-    fig, axs = plt.subplots(1, 3)
+    # fig, axs = plt.subplots(1, 3)
 
-    #### Plot section ####
+    # #### Plot section ####
 
-    mode = "percent"
-    baseline = [-0.5, 0]
+    # mode = "mean" #"percent"
+    # baseline = (None, None)
+    # cmin = -1e-9
+    # cmax = -cmin
+    # #baseline = None
+    # #cmin = -5e-10
+    # #cmax = -cmin
+    # difference_total.plot(axes=axs[0],baseline=baseline,picks=config["pick"],mode=mode,vmin=cmin,vmax=cmax, show=False,title="TF Total difference at {}".format(config["pick"]))
+    # difference_evoked.plot(axes=axs[1], baseline=baseline,picks=config["pick"],mode=mode,vmin=cmin,vmax=cmax, show=False,title="TF Evoked difference at {}".format(config["pick"]))
+    # difference_induced.plot(axes=axs[2], baseline=baseline,picks=config["pick"],mode=mode,vmin=cmin,vmax=cmax, show=False,title="1: TF Induced difference at {}".format(config["pick"]))
+    # #fig_induced = difference_induced.plot(baseline=baseline,picks=config["pick"],mode=mode,vmin=cmin,vmax=cmax, show=False,title="TF Difference Induced at {}".format(config["pick"]))
+
+    fig2, axs2 = plt.subplots(1, 3)
+    mode = "mean" #"percent"
+    baseline = None
+    cmin = None
+    cmax = None
     #baseline = None
-    cmin = -1
-    cmax = 1
-    difference_total.plot(axes=axs[0],baseline=baseline,picks=config["pick"],mode=mode,vmin=cmin,vmax=cmax, show=False,title="TF Total difference at {}".format(config["pick"]))
-    difference_evoked.plot(axes=axs[1], baseline=baseline,picks=config["pick"],mode=mode,vmin=cmin,vmax=cmax, show=False,title="TF Evoked difference at {}".format(config["pick"]))
-    difference_induced.plot(axes=axs[2], baseline=baseline,picks=config["pick"],mode=mode,vmin=cmin,vmax=cmax, show=False,title="TF Induced difference at {}".format(config["pick"]))
-    fig_induced = difference_induced.plot(baseline=baseline,picks=config["pick"],mode=mode,vmin=cmin,vmax=cmax, show=False,title="TF Difference Induced at {}".format(config["pick"]))
+    #cmin = -5e-10
+    #cmax = -cmin
+    difference_total.plot(axes=axs2[0],baseline=baseline,picks=config["pick"],mode=mode,vmin=cmin,vmax=cmax, show=False,title="TF Total difference at {}".format(config["pick"]))
+    difference_evoked.plot(axes=axs2[1], baseline=baseline,picks=config["pick"],mode=mode,vmin=cmin,vmax=cmax, show=False,title="TF Evoked difference at {}".format(config["pick"]))
+    difference_induced.plot(axes=axs2[2], baseline=baseline,picks=config["pick"],mode=mode,vmin=cmin,vmax=cmax, show=False,title="2: TF Induced difference at {}".format(config["pick"]))
+    #fig_induced = difference_induced.plot(baseline=baseline,picks=config["pick"],mode=mode,vmin=cmin,vmax=cmax, show=False,title="TF Difference Induced at {}".format(config["pick"]))
+    addFigure(subject, fig2, "Total / Evoked / Induced  power (left-to-right)", "Time-Frequency")
 
-    plt.show()
+
+
+
+
+    #plt.show()
     #plot power spectrum
-    fig_psd = epochs.plot_psd(fmin=2., fmax=40., average=True, spatial_colors=False, show=True)
+    fig_psd = epochs.plot_psd(fmin=2., fmax=40., average=True, spatial_colors=False, show=False)
     addFigure(subject, fig_psd, "Power spectrum of epochs", "Time-Frequency")
 
     # f, ax = plt.subplots()
@@ -120,16 +141,57 @@ for subject in subjects:
     fig_induced = difference_induced.plot(baseline=baseline,picks=config["pick"],mode=mode,vmin=cmin,vmax=cmax, show=False,title="TF Difference Induced at {}".format(config["pick"]))
     addFigure(subject, fig_induced, "Induced power", "Time-Frequency")
         #power_evoked.plot(baseline=baseline,picks=config["pick"],mode=mode,vmin=cmin,vmax=cmax, show=False,title="TF Evoked at {}".format(config["pick"]))
-
+    plt.close('all')
     #power_total.plot_topo(show=False)
 
 induced_rare_average = mne.combine_evoked(subjects_induced_rare_list, weights="equal")
 induced_frequent_average = mne.combine_evoked(subjects_induced_frequent_list, weights="equal")
 
+fig_suject_averages, axs = plt.subplots(1, 2)
+induced_rare_average.plot(axes=axs[0], baseline=baseline,picks=config["pick"],mode=mode,vmin=cmin,vmax=cmax, show=False,title="TF Induced difference at {}".format(config["pick"]))
+induced_frequent_average.plot(axes=axs[1], baseline=baseline,picks=config["pick"],mode=mode,vmin=cmin,vmax=cmax, show=False,title="TF Induced difference at {}".format(config["pick"]))
+addFigure(subject, fig_suject_averages, "Average: Induced rare / Induced frequent power (left-to-right)", "Time-Frequency", totalReport=True)
+
+induced_difference_average = mne.combine_evoked([induced_rare_average, induced_frequent_average], weights=[1,-1])
+fig_difference_average = induced_frequent_average.plot(axes=axs2[2], baseline=baseline,picks=config["pick"],mode=mode,vmin=cmin,vmax=cmax, show=False,title="TF Induced difference at {}".format(config["pick"]))
+addFigure(subject, fig_suject_averages, "Average: Difference (left-to-right)", "Time-Frequency", totalReport=True)
+plt.close('all')
 
 stacked_tf = np.stack(subjects_tf_list)
 stacked_zeros = np.stack(null_condition_list)
 t_values, clusters, cluster_p_values, h0 = mne.stats.permutation_cluster_test([stacked_tf, stacked_zeros])
-print("Cluster permutation t-test:", cluster_p_values)
+print("#################### Cluster permutation t-test: ###############\n", cluster_p_values)
+
+
+############# plot permutation t test on average #################################
+t_values, clusters, cluster_p_values, h0 = mne.stats.permutation_cluster_test([induced_difference_average._data, np.zeros(shape=induced_difference_average._data.shape)])
+print("#################### Cluster permutation t-test: ###############\n", cluster_p_values)
+times = 1e3 * induced_difference_average.times
+plt.figure()
+plt.subplots_adjust(0.12, 0.08, 0.96, 0.94, 0.2, 0.43)
+plt.subplot(2, 1, 1)
+freqs = np.arange(5, 55, 2)
+T_obs_plot = np.nan * np.ones_like(t_values)
+for c, p_val in zip(clusters, cluster_p_values):
+    if p_val <= 0.05:
+        T_obs_plot[c] = t_values[c]
+
+plt.imshow(t_values,
+           extent=[times[0], times[-1], freqs[0], freqs[-1]],
+           aspect='auto', origin='lower', cmap='gray')
+plt.imshow(T_obs_plot,
+           extent=[times[0], times[-1], freqs[0], freqs[-1]],
+           aspect='auto', origin='lower', cmap='RdBu_r')
+
+plt.xlabel('Time (ms)')
+plt.ylabel('Frequency (Hz)')
+plt.title('Induced power')
+
+ax2 = plt.subplot(2, 1, 2)
+#TODO plot grand average instead of power spectrum
+induced_difference_average.plot(axes=ax2, picks=config["pick"])
+
+plt.show()
+
 
 plt.show()
