@@ -24,6 +24,7 @@ subject = handleSubjectArg()
 
 ''' function for rereferencing EEG data'''
 def rereference(raw, subject):
+    #reference as projection, do not change data directly
     raw.set_eeg_reference(ref_channels=config["reference"], projection=True)
 
     raw.save(fname.reference(subject=subject), overwrite=True)
@@ -33,12 +34,11 @@ def rereference(raw, subject):
 #load raw object ob previous step
 raw = readRawFif(fname.ica(subject=subject), preload=True)
 
-fig_before = raw.copy().pick(config["pick"]).plot(show=False)
-
-#perform referecing
+#perform referencing
 rereference(raw, subject)
 
-fig_after = raw.copy().pick(config["pick"]).plot(show=False)
+fig_before = raw.plot(show=False, proj=False)
+fig_after = raw.plot(show=False, proj=True)
 
 addFigure(subject, fig_before, "Before referencing:", "Preprocess")
 addFigure(subject, fig_after, "After referencing:", "Preprocess")
