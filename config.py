@@ -48,6 +48,7 @@ fname.add('evokedPeaks','{subject_dir}/evoked-peaks.json')
 fname.add('epochs','{subject_dir}/{subject}-coded-epochs-epo.fif')
 fname.add('evokedRare','{subject_dir}/evoked-rare-ave.fif')
 fname.add('evokedFrequent','{subject_dir}/evoked-frequent-ave.fif')
+fname.add('decodingAnalysis', '{subject_dir}/decode-peaks.json')
 
 # Filenames for MNE reports
 fname.add('reports_dir', '{study_path}/reports/{task}'.format(study_path=study_path, task=config["task"]))
