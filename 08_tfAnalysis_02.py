@@ -69,7 +69,7 @@ print("#################### Cluster permutation t-test: ###############\n", clus
 fig_test, ax_test = plt.subplots(1,3,constrained_layout=True, figsize=(24, 8))
 ax_test[0].title.set_text("Across subject induced{}".format(config["tf_analyze_pick"]))
 ax_test[1].title.set_text("T-Values of cluster permutation test")
-ax_test[2].title.set_text("Clusters with significant p-values <= " + str(config["alpha"]))
+ax_test[2].title.set_text("Clusters with significant p-values <= " + str(config["alpha"]) + ", Color = P-Value")
 
 difference_induced_average.plot(axes= ax_test[0],picks=config["tf_analyze_pick"], show=False)
 frequencies = np.arange(5, 55, 2)
@@ -78,9 +78,17 @@ cluster_array = np.nan * np.ones_like(t_values)
 
 for cluster, p_value in zip(clusters, cluster_p_values):
     if p_value <= config["alpha"]:
-        cluster_array[cluster] = difference_induced_average.data[0][cluster]
+        cluster_array[cluster] = p_value
 
-ax_test[1].imshow(t_values,extent=[times[0], times[-1], frequencies[0], frequencies[-1]],aspect='auto', origin='lower', cmap='gray')
-ax_test[2].imshow(cluster_array, extent=[times[0], times[-1], frequencies[0], frequencies[-1]],aspect='auto', origin='lower', cmap='RdBu_r')
+im1 = ax_test[1].imshow(t_values,extent=[times[0], times[-1], frequencies[0], frequencies[-1]],aspect='auto', origin='lower', cmap='gray')
+im2 = ax_test[2].imshow(cluster_array, extent=[times[0], times[-1], frequencies[0], frequencies[-1]],aspect='auto', origin='lower', cmap='gray')
+fig_test.colorbar(im1, ax=ax_test[1])
+fig_test.colorbar(im2, ax=ax_test[2])
+
+# for cluster, p_value in zip(clusters, cluster_p_values):
+#     if p_value <= config["alpha"]:
+#         x = cluster[0][0]
+#         y = cluster[1][0]
+#         ax_test[2].text(x, y, "P-Val:"+str(p_value), bbox=dict(fill=False, edgecolor='white', linewidth=2))
 
 addFigure(None, fig_test, "T-test significance over induced average", "Time-Frequency", totalReport=True)

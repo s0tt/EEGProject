@@ -72,11 +72,11 @@ difference_induced.comment = "Condition difference induced power | Sub: " + str(
 fig_sub, ax_sub = subplotTF(difference_total,difference_evoked,difference_induced)
 addFigure(subject, fig_sub, "Total / Evoked / Induced  power (left-to-right)", "Time-Frequency")
 
-fig_1, ax_1 = subplotTF(power_cond1,power_induced_cond1,power_evoked_cond1)
-addFigure(subject, fig_1, "Condition {}: Total / Evoked / Induced (left-to-right) | SUB:{}".format(config["event_names"]["cond1"], subject), "Time-Frequency")
+# fig_1, ax_1 = subplotTF(power_cond1,power_induced_cond1,power_evoked_cond1)
+# addFigure(subject, fig_1, "Condition {}: Total / Evoked / Induced (left-to-right) | SUB:{}".format(config["event_names"]["cond1"], subject), "Time-Frequency")
 
-fig_2, ax_2 = subplotTF(power_cond2,power_induced_cond2,power_evoked_cond2)
-addFigure(subject, fig_2, "Condition{}: Total / Evoked / Induced (left-to-right)| SUB:{}".format(config["event_names"]["cond2"], subject), "Time-Frequency")
+# fig_2, ax_2 = subplotTF(power_cond2,power_induced_cond2,power_evoked_cond2)
+# addFigure(subject, fig_2, "Condition{}: Total / Evoked / Induced (left-to-right)| SUB:{}".format(config["event_names"]["cond2"], subject), "Time-Frequency")
 
 #plot power spectrum
 fig_psd = epochs.plot_psd(fmin=2., fmax=50., average=True, spatial_colors=False, show=False)
