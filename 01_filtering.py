@@ -12,7 +12,7 @@ raw = readRawData(subject_id=subject)
 
 #bandpass filter raw EEG data
 ### Best-pratices/Recommendations from: Digital filter design for electrophysiological data – a practical approach ###
-# - Low-pass filters with cutoff frequencies > 40 Hz during ERP analysis t opreserve
+# - Low-pass filters with cutoff frequencies > 40 Hz during ERP analysis
 # - Showed that high-pass cutoff frequency ~0.75Hz has only minor effects on ERP --> Therefore stay below ~0.75Hz to not disturb signal
 # - Better use bandpass instead of separate Low & High-Pass
 # - FIR filters are easier to controll, always stable, well-defined passband etc. in comparison to IIR

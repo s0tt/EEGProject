@@ -31,19 +31,31 @@ def rereference(raw, subject):
     if config["isSpaceSaveMode"]:
         os.remove(fname.ica(subject=subject))
 
+''' plots rereference figures before/after'''
+def plotRereference(raw, title, project=False):
+    fig, ax = plt.subplots(1, 3, figsize=(12, 7), gridspec_kw={'width_ratios': [10, 8, 1]})
+    epochs = getCodedEpochs(raw)
+    evoked = epochs.average()
+    title = title
+    evoked.plot(axes=ax[0], titles=dict(eeg=title), time_unit='s', proj=project, show=False)
+    evoked.plot_topomap(axes=[ax[1],ax[2]], times=[0.35], size=2.5, title=title, time_unit='s', proj=project, show=False)
+    return fig
+
+
 #load raw object ob previous step
 raw = readRawFif(fname.ica(subject=subject), preload=True)
 
 if config["reference"] != "average":
-    fig_before = raw.plot(show=False)
+    fig_before = plotRereference(raw, "Before referencing")
 
 #perform referencing
 rereference(raw, subject)
 
 if config["reference"] == "average":
-    fig_before = raw.plot(show=False, proj=False)
+    fig_before = plotRereference(raw, "Before referencing", project=False)
 
-fig_after = raw.plot(show=False, proj=True)
+
+fig_after = plotRereference(raw, "After referencing", project=True)
 
 addFigure(subject, fig_before, "Before referencing:", "Preprocess")
 addFigure(subject, fig_after, "After referencing:", "Preprocess")

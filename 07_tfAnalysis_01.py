@@ -31,14 +31,14 @@ def subplotTF(total, evoked, induced):
 
 
 epochs = mne.read_epochs(fname.epochs(subject=subject))
-#epochs.equalize_event_counts(["cond1", "cond2"])
 epochs.resample(100, npad='auto')
 epochs_induced_cond1 = epochs["cond1"].copy().subtract_evoked()
 epochs_induced_cond2 = epochs["cond2"].copy().subtract_evoked()
 
-#define wavelet parameters --> Go for tradeoff between frequencies and cycles
+#define wavelet parameters --> Go for tradeoff between time-frequency resolution
+# precise time in low frequencies then linearly increase cycles with frequency
 freq = np.logspace(*np.log10([5, 50]), num=25)
-cycles = freq / 2. # freq / 10. to be time wise more precise
+cycles = freq / 2. 
 
 #### generate power spectrum with morlet wavelets ####
 
@@ -72,6 +72,7 @@ difference_induced.comment = "Condition difference induced power | Sub: " + str(
 fig_sub, ax_sub = subplotTF(difference_total,difference_evoked,difference_induced)
 addFigure(subject, fig_sub, "Total / Evoked / Induced  power (left-to-right)", "Time-Frequency")
 
+#### Optional plots: tf for different conditions individually ####
 # fig_1, ax_1 = subplotTF(power_cond1,power_induced_cond1,power_evoked_cond1)
 # addFigure(subject, fig_1, "Condition {}: Total / Evoked / Induced (left-to-right) | SUB:{}".format(config["event_names"]["cond1"], subject), "Time-Frequency")
 

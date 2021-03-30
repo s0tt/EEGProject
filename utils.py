@@ -8,6 +8,7 @@ from config import config, fname
 import warnings
 import numpy as np
 import pickle
+import os
 
 def readRawData(subject_id,task=config["task"],session=config["task"], datatype='eeg', suffix='eeg', bids_root="local/bids"):
     bids_path = BIDSPath(subject=subject_id,task=config["task"],session=config["task"],
@@ -139,10 +140,13 @@ def getCodedEpochs(raw, printPlot=False, subject=None, **kwargs):
     return mne.Epochs(raw,evts,event_id=coding_mapping,tmin=-0.1,tmax=1, **kwargs)
 
 def readData(path):
-    with open(path, "rb") as pickle_file:
-        data = pickle.load(pickle_file)
-        pickle_file.close()
-        return data
+    if os.path.exists(path):
+        with open(path, "rb") as pickle_file:
+            data = pickle.load(pickle_file)
+            pickle_file.close()
+            return data
+    else:
+        raise FileNotFoundError("File: {} not found".format(path))
     
 def writeData(path, data):
     with open(path, "wb") as pickle_file:

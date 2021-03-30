@@ -18,6 +18,7 @@ time_lst_plt = []
 
 subject = handleSubjectArg()
 
+'''calculate binary labels for condition differences'''
 def getEpochLabels(epochs):
     inverse_dict = {value: key for key, value in epochs.event_id.items()}
     assert len(epochs.event_id) == len(inverse_dict)
@@ -31,6 +32,7 @@ def getEpochLabels(epochs):
         labels_binary.append(1 if cond == "cond2" else 0)
     return np.array(labels_binary)
 
+'''show decoding plot for given model'''
 def plotData(x, y, model_type, t_max):
     fig, ax = plt.subplots(constrained_layout=True, figsize=(16, 9))
     ax.plot(x, y, label="score")
@@ -49,6 +51,11 @@ def plotData(x, y, model_type, t_max):
 
 
 epochs = mne.read_epochs(fname.epochs(subject=subject))
+
+#equalize event_counts for decoding to have same signal to noise ratio
+#otherwise classifier would be biased to difference in condition occurences
+epochs.equalize_event_counts(["cond1", "cond2"])
+
 epochs.resample(256)
 epochs = epochs[["cond1", "cond2"]]
 epochs = epochs.crop(tmin=-0.1, tmax=1.0)
@@ -82,6 +89,7 @@ data = {}
 pipeline_list = [decoding_types[model] for model in selected_models]
 
 for pipeline, model_type in zip(pipeline_list, selected_models):
+    
     #generate train/test split
     cross_val = sklearn.model_selection.StratifiedShuffleSplit(10, test_size=0.3, random_state=7)
     estimator = mne.decoding.SlidingEstimator(pipeline, scoring=config["decode_scoring"], n_jobs=n_jobs)
