@@ -1,12 +1,12 @@
 #TODO: Implement pipeline
 from config import config, fname
 
-all_subjects = [str(sub).zfill(3) for sub in range(1,41)]
+all_subjects = [str(sub).zfill(3) for sub in range(1, 40+1)]
 
 ###set which subjects to compute
 #subjects = config["subjects_numbers"]
 subjects = all_subjects
-clean_mode = [] ##True if clean, else None
+clean_mode = [] ##True if clean, else [] --> False is somehow not allowed by Pydoit
 
 def task_00_init():
     """Step 00: Init the system"""
@@ -25,8 +25,8 @@ def task_01_filter():
     for subject in subjects:
         yield dict(
             name=subject,
-            targets=[fname.filt(subject=subject,fmin=config["bandpass_fmin"], fmax=config["bandpass_fmax"]), 
-                        fname.report_html(subject=subject), fname.report(subject=subject)],
+            targets=[fname.filt(subject=subject,fmin=config["bandpass_fmin"], fmax=config["bandpass_fmax"])], 
+ #                       fname.report_html(subject=subject), fname.report(subject=subject)],
             actions=["python 01_filtering.py {sub}".format(sub=subject)],
             uptodate=[True],
             clean=clean_mode
@@ -105,22 +105,21 @@ def task_08_timeFrequencyAnalysis02():
             clean=clean_mode
         )
 
-
-# def task_09_decodingAnalysis01():
-#     """Step 06: Plot grand average"""
-#     for subject in subjects:
-#         yield dict(
-#                 name=subject,
-#                 targets=[fname.decodingAnalysis(subject=subject)],
-#                 actions=["python 11_decoding_01.py {sub}".format(sub=subject)],
-#                 file_dep=[fname.epochs(subject=subject) for subject in subjects],
-#                 clean=clean_mode
-#             )
-# def task_10_decodingAnalysis02():
-#     """Step 06: Plot grand average"""
-#     return dict(
-#             targets=[],
-#             actions=["python 11_decoding_02.py {sub}".format(sub= ' '.join([subject for subject in subjects]))],
-#             file_dep=[fname.decodingAnalysis(subject=subject) for subject in subjects],
-#             clean=clean_mode
-#         )
+def task_09_decodingAnalysis01():
+    """Step 06: Plot grand average"""
+    for subject in subjects:
+        yield dict(
+                name=subject,
+                targets=[fname.decodingAnalysis(subject=subject)],
+                actions=["python 09_decoding_01.py {sub}".format(sub=subject)],
+                file_dep=[fname.epochs(subject=subject)],
+                clean=clean_mode
+            )
+def task_10_decodingAnalysis02():
+    """Step 06: Plot grand average"""
+    return dict(
+            targets=[],
+            actions=["python 10_decoding_02.py {sub}".format(sub= ' '.join([subject for subject in subjects]))],
+            file_dep=[fname.decodingAnalysis(subject=subject) for subject in subjects],
+            clean=clean_mode
+        )
