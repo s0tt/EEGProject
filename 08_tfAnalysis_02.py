@@ -11,15 +11,15 @@ import numpy as np
 def subplotTF(total, evoked, induced):
     mode = "mean" #"percent"
     baseline = None
-    cmax = None
-    cmin = None
+    vmax = 3e-10
+    vmin = -vmax
     fig, ax = plt.subplots(1, 3, constrained_layout=True, figsize=(24, 8))
     ax[0].title.set_text("TF Total difference at {}".format(config["pick"]))
     ax[1].title.set_text("TF Evoked difference at {}".format(config["pick"]))
     ax[2].title.set_text("TF Induced difference at {}".format(config["pick"]))
-    total.plot(axes=ax[0],baseline=baseline,picks=config["pick"],mode=mode,vmin=cmin,vmax=cmax, show=False)
-    evoked.plot(axes=ax[1], baseline=baseline,picks=config["pick"],mode=mode,vmin=cmin,vmax=cmax, show=False)
-    induced.plot(axes=ax[2], baseline=baseline,picks=config["pick"],mode=mode,vmin=cmin,vmax=cmax, show=False)
+    total.plot(axes=ax[0],baseline=baseline,picks=config["pick"],mode=mode,vmin=vmin,vmax=vmax, show=False)
+    evoked.plot(axes=ax[1], baseline=baseline,picks=config["pick"],mode=mode,vmin=vmin,vmax=vmax, show=False)
+    induced.plot(axes=ax[2], baseline=baseline,picks=config["pick"],mode=mode,vmin=vmin,vmax=vmax, show=False)
     return fig, ax
 
 subjects = handleSubjectArg(multiSub=True)
@@ -63,7 +63,7 @@ ax_test[2].title.set_text("Clusters with significant p-values <= " + str(config[
 
 difference_induced_average.plot(axes= ax_test[0],picks=config["pick"], show=False)
 frequencies = np.arange(5, 55, 2)
-times = 1e3 * difference_induced_average.times
+times = 1000 * difference_induced_average.times
 cluster_array = np.nan * np.ones_like(t_values)
 
 for cluster, p_value in zip(clusters, cluster_p_values):

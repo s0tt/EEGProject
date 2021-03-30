@@ -18,15 +18,15 @@ difference_evoked_list = []
 def subplotTF(total, evoked, induced):
     mode = "mean" #"percent"
     baseline = None
-    cmax = None
-    cmin = None
+    vmax = 3e-10
+    vmin = -vmax
     fig, ax = plt.subplots(1, 3, constrained_layout=True, figsize=(24, 8))
     ax[0].title.set_text("TF Total difference at {}".format(config["pick"]))
     ax[1].title.set_text("TF Evoked difference at {}".format(config["pick"]))
     ax[2].title.set_text("TF Induced difference at {}".format(config["pick"]))
-    total.plot(axes=ax[0],baseline=baseline,picks=config["pick"],mode=mode,vmin=cmin,vmax=cmax, show=False)
-    evoked.plot(axes=ax[1], baseline=baseline,picks=config["pick"],mode=mode,vmin=cmin,vmax=cmax, show=False)
-    induced.plot(axes=ax[2], baseline=baseline,picks=config["pick"],mode=mode,vmin=cmin,vmax=cmax, show=False)
+    total.plot(axes=ax[0],baseline=baseline,picks=config["pick"],mode=mode,vmin=vmin,vmax=vmax, show=False)
+    evoked.plot(axes=ax[1], baseline=baseline,picks=config["pick"],mode=mode,vmin=vmin,vmax=vmax, show=False)
+    induced.plot(axes=ax[2], baseline=baseline,picks=config["pick"],mode=mode,vmin=vmin,vmax=vmax, show=False)
     return fig, ax
 
 
@@ -73,14 +73,14 @@ fig_sub, ax_sub = subplotTF(difference_total,difference_evoked,difference_induce
 addFigure(subject, fig_sub, "Total / Evoked / Induced  power (left-to-right)", "Time-Frequency")
 
 fig_1, ax_1 = subplotTF(power_cond1,power_induced_cond1,power_evoked_cond1)
-addFigure(subject, fig_1, "Condition FACES: Total / Evoked / Induced (left-to-right)", "Time-Frequency")
+addFigure(subject, fig_1, "Condition {}: Total / Evoked / Induced (left-to-right) | SUB:{}".format(config["event_names"]["cond1"], subject), "Time-Frequency")
 
 fig_2, ax_2 = subplotTF(power_cond2,power_induced_cond2,power_evoked_cond2)
-addFigure(subject, fig_2, "Condition CARS: Total / Evoked / Induced (left-to-right)", "Time-Frequency")
+addFigure(subject, fig_2, "Condition{}: Total / Evoked / Induced (left-to-right)| SUB:{}".format(config["event_names"]["cond2"], subject), "Time-Frequency")
 
 #plot power spectrum
 fig_psd = epochs.plot_psd(fmin=2., fmax=50., average=True, spatial_colors=False, show=False)
-addFigure(subject, fig_psd, "Power spectrum of epochs", "Time-Frequency")
+addFigure(subject, fig_psd, "Power spectrum of epochs | SUB:{}".format(subject), "Time-Frequency")
 
 writeData(path=fname.tfAnalysis(subject=subject), data=[difference_total, difference_evoked, difference_induced])
 #power_total.plot_topo(show=False)
