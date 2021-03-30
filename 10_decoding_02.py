@@ -49,9 +49,6 @@ def plotModel(time_means, score_means, p_values, model_name):
     ax[1].yaxis.set_major_locator(ticker.MultipleLocator(0.1))
     return fig
 
-time_list = []
-time_plt = []
-
 subjects = handleSubjectArg(multiSub=True)
 
 time_list = np.arange(0, 1.0, config["decode_sampling"])
@@ -70,7 +67,7 @@ for subject_idx, subject in enumerate(subjects):
 
         for time_idx, time_point in enumerate(time_list):       
             #find data in time bins
-            idx = [i for i, x in enumerate(subject_time) if x >= time_point  and x < time_point + config["decode_sampling"]]
+            idx = [t_idx for t_idx, t in enumerate(subject_time) if t >= time_point  and t < time_point + config["decode_sampling"]]
             #calculate mean score of bins
             score = np.mean(subject_score[idx])
             model_score_time_array[model_idx, subject_idx, time_idx] = score
@@ -97,5 +94,6 @@ for model_idx, model_name in enumerate(config["decoding_models"]):
         else:
             time_means.append(np.mean([time_point, time_list[time_idx+1]]))
 
-    fig = plotModel(time_means, score_means, p_values, model_name)
+    fig = plotModel(np.repeat(time_list, 2), np.repeat(score_means, 2), np.repeat(p_values, 2), model_name)
+    #fig = plotModel(time_means, score_means, p_values, model_name)
     addFigure(None, fig, "Decoding Analysis with "+model_name, "Decoding", totalReport=True)

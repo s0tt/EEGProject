@@ -12,28 +12,24 @@ import matplotlib.pyplot as plt
 from matplotlib import ticker
 import os
 
-# Decoding analysis Decode the main contrast of the experiment across time
-# RQ: When is information about the conditions in our data available?
-# https://mne.tools/stable/auto_tutorials/machine-learning/plot_sensors_decoding.html
 pvalues = []
-cohensds = []
-score_mean = []
 time_lst = []
 time_lst_plt = []
 
 subject = handleSubjectArg()
 
 def getEpochLabels(epochs):
-    # Assert uniqueness of dict values to allow inversion
-    events_dict_inv = {value: key for key, value in epochs.event_id.items()}
-    assert len(epochs.event_id) == len(events_dict_inv)
+    inverse_dict = {value: key for key, value in epochs.event_id.items()}
+    assert len(epochs.event_id) == len(inverse_dict)
 
-    event_labels = epochs.events[:,-1]
-    labels = [events_dict_inv[key].split("/")[0] for key in event_labels]
+    event_keys = epochs.events[:,2]
+    events_condition = [inverse_dict[key].split("/")[0] for key in event_keys]
 
-    # Change to integer rerpresentation: condition1 == 0 and condition2 == 1
-    labels = [int(label == "cond2") for label in labels]
-    return np.array(labels)
+    # Change to binary labels: condition1 == 0 and condition2 == 1
+    labels_binary = []
+    for cond in events_condition:
+        labels_binary.append(1 if cond == "cond2" else 0)
+    return np.array(labels_binary)
 
 def plotData(x, y, model_type, t_max):
     fig, ax = plt.subplots(constrained_layout=True, figsize=(16, 9))
