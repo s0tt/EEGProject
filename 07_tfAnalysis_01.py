@@ -21,12 +21,12 @@ def subplotTF(total, evoked, induced):
     vmax = 3e-10
     vmin = -vmax
     fig, ax = plt.subplots(1, 3, constrained_layout=True, figsize=(24, 8))
-    ax[0].title.set_text("TF Total difference at {}".format(config["pick"]))
-    ax[1].title.set_text("TF Evoked difference at {}".format(config["pick"]))
-    ax[2].title.set_text("TF Induced difference at {}".format(config["pick"]))
-    total.plot(axes=ax[0],baseline=baseline,picks=config["pick"],mode=mode,vmin=vmin,vmax=vmax, show=False)
-    evoked.plot(axes=ax[1], baseline=baseline,picks=config["pick"],mode=mode,vmin=vmin,vmax=vmax, show=False)
-    induced.plot(axes=ax[2], baseline=baseline,picks=config["pick"],mode=mode,vmin=vmin,vmax=vmax, show=False)
+    ax[0].title.set_text("TF Total difference at {}".format(config["tf_compute_pick"]))
+    ax[1].title.set_text("TF Evoked difference at {}".format(config["tf_compute_pick"]))
+    ax[2].title.set_text("TF Induced difference at {}".format(config["tf_compute_pick"]))
+    total.plot(axes=ax[0],baseline=baseline,picks=config["tf_compute_pick"],mode=mode,vmin=vmin,vmax=vmax, show=False)
+    evoked.plot(axes=ax[1], baseline=baseline,picks=config["tf_compute_pick"],mode=mode,vmin=vmin,vmax=vmax, show=False)
+    induced.plot(axes=ax[2], baseline=baseline,picks=config["tf_compute_pick"],mode=mode,vmin=vmin,vmax=vmax, show=False)
     return fig, ax
 
 
@@ -44,17 +44,17 @@ cycles = freq / 2. # freq / 10. to be time wise more precise
 
 #-----total power for given subject -----
 power_cond1= mne.time_frequency.tfr_morlet(epochs["cond1"], freqs=freq, n_cycles=cycles, use_fft=True,
-                        return_itc=False, decim=3, n_jobs=n_jobs, picks=config["pick"], average=True)
+                        return_itc=False, decim=3, n_jobs=n_jobs, picks=config["tf_compute_pick"], average=True)
 
 power_cond2= mne.time_frequency.tfr_morlet(epochs["cond2"], freqs=freq, n_cycles=cycles, use_fft=True,
-                    return_itc=False, decim=3, n_jobs=n_jobs, picks=config["pick"], average=True)
+                    return_itc=False, decim=3, n_jobs=n_jobs, picks=config["tf_compute_pick"], average=True)
 
 #-----induced power for given subject -----
 power_induced_cond1= mne.time_frequency.tfr_morlet(epochs_induced_cond1, freqs=freq, n_cycles=cycles, use_fft=True,
-                        return_itc=False, decim=3, n_jobs=n_jobs, picks=config["pick"], average=True)
+                        return_itc=False, decim=3, n_jobs=n_jobs, picks=config["tf_compute_pick"], average=True)
 
 power_induced_cond2= mne.time_frequency.tfr_morlet(epochs_induced_cond2, freqs=freq, n_cycles=cycles, use_fft=True,
-                        return_itc=False, decim=3, n_jobs=n_jobs, picks=config["pick"], average=True)
+                        return_itc=False, decim=3, n_jobs=n_jobs, picks=config["tf_compute_pick"], average=True)
 
 #-----evoked power for given subject -----
 power_evoked_cond1 = mne.combine_evoked([power_cond1, power_induced_cond1],weights=[1,-1])

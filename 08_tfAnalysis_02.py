@@ -10,17 +10,22 @@ import numpy as np
 
 def subplotTF(total, evoked, induced):
     mode = "mean" #"percent"
-    baseline = None
-    vmax = 3e-10
+    baseline = None if config["tf_baseline"] == "None" else config["tf_baseline"]
+    vmax = config["tf_vmax"]
     vmin = -vmax
     fig, ax = plt.subplots(1, 3, constrained_layout=True, figsize=(24, 8))
-    ax[0].title.set_text("TF Total difference at {}".format(config["pick"]))
-    ax[1].title.set_text("TF Evoked difference at {}".format(config["pick"]))
-    ax[2].title.set_text("TF Induced difference at {}".format(config["pick"]))
-    total.plot(axes=ax[0],baseline=baseline,picks=config["pick"],mode=mode,vmin=vmin,vmax=vmax, show=False)
-    evoked.plot(axes=ax[1], baseline=baseline,picks=config["pick"],mode=mode,vmin=vmin,vmax=vmax, show=False)
-    induced.plot(axes=ax[2], baseline=baseline,picks=config["pick"],mode=mode,vmin=vmin,vmax=vmax, show=False)
+    ax[0].title.set_text("TF Total difference at {}".format(config["tf_analyze_pick"]))
+    ax[1].title.set_text("TF Evoked difference at {}".format(config["tf_analyze_pick"]))
+    ax[2].title.set_text("TF Induced difference at {}".format(config["tf_analyze_pick"]))
+    total.plot(axes=ax[0],baseline=baseline,picks=config["tf_analyze_pick"],mode=mode,vmin=vmin,vmax=vmax, show=False)
+    evoked.plot(axes=ax[1], baseline=baseline,picks=config["tf_analyze_pick"],mode=mode,vmin=vmin,vmax=vmax, show=False)
+    induced.plot(axes=ax[2], baseline=baseline,picks=config["tf_analyze_pick"],mode=mode,vmin=vmin,vmax=vmax, show=False)
     return fig, ax
+
+def plotTopo(power):
+    baseline = None if config["tf_baseline"] == "None" else config["tf_baseline"]
+    fig = power.plot_topo(baseline=baseline, mode='logratio', title='Average power', show=False)
+    return fig
 
 subjects = handleSubjectArg(multiSub=True)
 
@@ -43,7 +48,12 @@ difference_total_average = mne.combine_evoked(difference_total_list, weights="eq
 difference_evoked_average = mne.combine_evoked(difference_evoked_list, weights="equal")
 difference_induced_average = mne.combine_evoked(difference_induced_list, weights="equal")
 
-fig_across_sub, ax_across_sub = subplotTF(difference_total_average,difference_evoked_average,difference_induced_average)
+fig_across_sub, _ = subplotTF(difference_total_average,difference_evoked_average,difference_induced_average)
+fig_topo_evoked = plotTopo(difference_evoked_average)
+fig_topo_induced = plotTopo(difference_induced_average)
+
+addFigure(None, fig_topo_evoked, "Evoked: Topology power plot for all computed electrodes", "Time-Frequency", totalReport=True)
+addFigure(None, fig_topo_induced, "Induced: Topology power plot for all computed electrodes", "Time-Frequency", totalReport=True)
 addFigure(None, fig_across_sub, "Subject average Total / Evoked / Induced  power (left-to-right)", "Time-Frequency", totalReport=True)
 
 
@@ -57,11 +67,11 @@ t_values, clusters, cluster_p_values, h0 = mne.stats.permutation_cluster_test([d
 print("#################### Cluster permutation t-test: ###############\n", cluster_p_values)
 
 fig_test, ax_test = plt.subplots(1,3,constrained_layout=True, figsize=(24, 8))
-ax_test[0].title.set_text("Across subject induced{}".format(config["pick"]))
+ax_test[0].title.set_text("Across subject induced{}".format(config["tf_analyze_pick"]))
 ax_test[1].title.set_text("T-Values of cluster permutation test")
 ax_test[2].title.set_text("Clusters with significant p-values <= " + str(config["alpha"]))
 
-difference_induced_average.plot(axes= ax_test[0],picks=config["pick"], show=False)
+difference_induced_average.plot(axes= ax_test[0],picks=config["tf_analyze_pick"], show=False)
 frequencies = np.arange(5, 55, 2)
 times = 1000 * difference_induced_average.times
 cluster_array = np.nan * np.ones_like(t_values)
