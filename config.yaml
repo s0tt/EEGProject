@@ -57,6 +57,10 @@ peak_window: [0.3, 0.6] #[tmin, tmax] time window for peak finding in grand aver
 #Time-frequency Analysis
 
 #Decoding Analysis
+decoding_models: ["LogisticRegression", "SVM"]
+model_total_score: "SVM"
 t_start: 0.0
 t_end: 1.0
-t_sample: 0.05
+t_sample: 0.01
+decode_scoring: "roc_auc"
+decode_alpha: 0.05
