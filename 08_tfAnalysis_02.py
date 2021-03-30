@@ -11,7 +11,7 @@ import numpy as np
 def subplotTF(total, evoked, induced):
     mode = "mean" #"percent"
     baseline = None if config["tf_baseline"] == "None" else config["tf_baseline"]
-    vmax = config["tf_vmax"]
+    vmax = config["tf_vmax"] * (1e-10)
     vmin = -vmax
     fig, ax = plt.subplots(1, 3, constrained_layout=True, figsize=(24, 8))
     ax[0].title.set_text("TF Total difference at {}".format(config["tf_analyze_pick"]))
