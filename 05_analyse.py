@@ -19,7 +19,6 @@ def plotEpochs(epochs):
     ax[1][1].get_yaxis().set_visible(False)
     ax[1][1].get_xaxis().set_visible(False)
     ax[1][1].axis("off")
-
     return fig
 
 # Handle command line arguments

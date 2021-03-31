@@ -33,13 +33,13 @@ def rereference(raw, subject):
 
 ''' plots rereference figures before/after'''
 def plotRereference(raw, title, project=False):
-    fig, ax = plt.subplots(1, 3, figsize=(8, 5), gridspec_kw={'width_ratios': [12, 5, 1]})
+    fig, ax = plt.subplots(1, 3, figsize=(9, 5), gridspec_kw={'width_ratios': [15, 5, 1]})
     epochs = getCodedEpochs(raw)
     evoked = epochs.average()
     title = title
     evoked.plot(axes=ax[0], titles=dict(eeg=title), time_unit='s', proj=project, show=False)
     evoked.plot_topomap(axes=[ax[1],ax[2]], times=[0.35], size=2.5, title=title, time_unit='s', proj=project, show=False)
-    fig.subplots_adjust(bottom=0.15)
+    fig.subplots_adjust(bottom=0.15, left=0.15)
     return fig
 
 

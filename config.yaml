@@ -15,10 +15,10 @@ subjects_numbers:
 #   - "037"
 
 #execution mode
-isOverwrite: False #overwrite all existing data units with newly generated ones
-isDialogeMode: True #manual mode with opens dialogs windows for example for manual cleaning
-isPrecomputeMode: False #if TRUE: from step 04 on use precomputed semester project data 
-isSpaceSaveMode: False #When true deletes the .fif of the last step after it was processed --> Save disk space
+isOverwrite: False #overwrite all existing data units with newly generated ones in the cleaning step 02_cleaning.py
+isDialogeMode: False #manual mode with opens dialogs windows for example for manual cleaning
+isPrecomputeMode: True #mode which uses precomputed semester project data for further analysis like Time-Frequency, Decoding, ERP analysis
+isSpaceSaveMode: False #When true deletes the .fif of the last pipeline step after it was processed --> Save disk space
 
 # Band-pass filter limits
 bandpass_fmin: 0.5  # Hz
@@ -35,8 +35,8 @@ ica_method: "picard"
 #according to https://mne.tools/dev/auto_tutorials/preprocessing/plot_40_artifact_correction_ica.html
 freq_highpass_ica: 1
 subject_ica_channels: {"002": [1, 9],
-                       "009": [],
-                       "040": [0]}
+                       "009": [0, 5, 7, 13],
+                       "040": [0, 2]}
 
 #Reference
 reference: ["P9", "P10"]
@@ -52,6 +52,8 @@ event_names: {
     "cond1": "rare",
     "cond2": "frequent"
 }
+#channel pick for epoch plots
+epoch_pick: "eeg"
 
 # ERP significance testing
 alpha: 0.05
