@@ -29,16 +29,19 @@ raw = readRawFif(fname.reference(subject=subject))
 #get event coded epochs, bad channels are by default removed by MNE
 epochs= getCodedEpochs(raw, printPlot=True, subject=subject, reject_by_annotation=True)
 
-cond1_evoked = epochs["cond1"]
-cond2_evoked = epochs["cond2"]
+epoch_cond1 = epochs["cond1"]
+epoch_cond2 = epochs["cond2"]
 cond1_name = config["event_names"]["cond1"]
 cond2_name = config["event_names"]["cond2"]
 
-difference_wave = mne.combine_evoked([cond1_evoked.average(),
-                                  cond2_evoked.average()],
+evoked_cond1 = epoch_cond1.average()
+evoked_cond2 = epoch_cond2.average()
+
+difference_wave = mne.combine_evoked([evoked_cond1,
+                                  evoked_cond2],
                                  weights=[1, -1])
 
-average = {cond1_name: cond1_evoked.average(), cond2_name: cond2_evoked.average(), "difference": difference_wave}
+average = {cond1_name: evoked_cond1, cond2_name: evoked_cond2, "difference": difference_wave}
 
 # plot epochs per condition
 fig_epoch =  plotEpochs(epochs)
@@ -51,15 +54,22 @@ fig_evokeds = mne.viz.plot_compare_evokeds(average, picks=config["pick"], show=F
 fig_joint = difference_wave.plot_joint(title=cond1_name+ " - "+cond2_name, picks="eeg", show=False)
 
 
-#plot topography for the ERP
-all_times = np.arange(0, 0.8, 0.05)
-fig_topo = difference_wave.plot_topomap(all_times, ch_type='eeg', time_unit='s',
+#plot topography for the conditions and ERP
+all_times = np.arange(epochs.baseline[0], 0.9, 0.05)
+
+fig_topo_cond1= evoked_cond1.plot_topomap(all_times, ch_type=config["analyse_pick"], time_unit='s',
+                    ncols=8, nrows='auto', show=False)
+fig_topo_cond2 = evoked_cond2.plot_topomap(all_times, ch_type=config["analyse_pick"], time_unit='s',
+                    ncols=8, nrows='auto', show=False)
+fig_topo_diff = difference_wave.plot_topomap(all_times, ch_type=config["analyse_pick"], time_unit='s',
                     ncols=8, nrows='auto', show=False)
 
 addFigure(subject, fig_epoch, "Epochs of subject both conditions", "Analyse")
 addFigure(subject, fig_evokeds, "Evokeds for different conditions", "Analyse")
 addFigure(subject, fig_joint, "Difference wave joint", "Analyse")
-addFigure(subject, fig_topo, "ERP Topography", "Analyse")
+addFigure(subject, fig_topo_cond1, "Topography condition: {} at pick: {}".format(cond1_name, config["analyse_pick"]), "Analyse")
+addFigure(subject, fig_topo_cond2, "Topography condition: {} at pick: {}".format(cond2_name, config["analyse_pick"]), "Analyse")
+addFigure(subject, fig_topo_diff, "Difference wave Topography at {}".format(config["analyse_pick"]), "Analyse")
 
 #write epoch objects
 epochs.save(fname.epochs(subject=subject), overwrite=True, verbose=True)

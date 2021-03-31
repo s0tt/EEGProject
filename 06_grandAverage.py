@@ -37,14 +37,23 @@ difference_wave = mne.combine_evoked([cond1_average,
                                   cond2_average],
                                  weights=[1, -1])
 
-average = {config["event_names"]["cond1"]: cond1_average, config["event_names"]["cond2"]: cond2_average, "difference": difference_wave}
+cond1_name = config["event_names"]["cond1"]
+cond2_name = config["event_names"]["cond2"]
+
+average = {cond1_name: cond1_average, cond2_name: cond2_average, "difference": difference_wave}
 
 fig_evokeds = mne.viz.plot_compare_evokeds(average, picks=config["pick"], truncate_yaxis=False, truncate_xaxis=False, show=True if config["isDialogeMode"] else False)
 
-#plot topography for the ERP
-all_times = np.arange(0, 0.8, 0.05)
-fig_topo = difference_wave.plot_topomap(all_times, ch_type='eeg', time_unit='s',
+#plot topography for the ERP and conditions
+all_times = np.arange(epoch.baseline[0], 0.9, 0.05) #plot from baseline in time
+fig_topo_cond1= cond1_average.plot_topomap(all_times, ch_type=config["analyse_pick"], time_unit='s',
                     ncols=8, nrows='auto', show=False)
+fig_topo_cond2 = cond2_average.plot_topomap(all_times, ch_type=config["analyse_pick"], time_unit='s',
+                    ncols=8, nrows='auto', show=False)
+fig_topo_diff = difference_wave.plot_topomap(all_times, ch_type=config["analyse_pick"], time_unit='s',
+                    ncols=8, nrows='auto', show=False)
+
+
 fig_joint = difference_wave.plot_joint(title="Average difference wave over subjects", show=False)
 
 #data line fitted
@@ -68,6 +77,8 @@ result_str = "T-test: p-value {} {} {} alpha".format(p_value, ">=" if p_value > 
 print(result_str)
 print("Statistically it is {} that the {} ERP is present given this data at {}".format("significant" if p_value < config["alpha"] else "unsignificant", config["task"], config["pick"]))
 addFigure(None, fig_evokeds, "Evoked Plot ","Peak-Analysis", totalReport=True, comments=result_str)
-addFigure(None, fig_topo, "ERP topography","Peak-Analysis", totalReport=True)
+addFigure(None, fig_topo_cond1, "Average Topography condition: {} at pick: {}".format(cond1_name, config["analyse_pick"]),"Peak-Analysis", totalReport=True)
+addFigure(None, fig_topo_cond2, "Average Topography condition: {} at pick: {}".format(cond2_name, config["analyse_pick"]),"Peak-Analysis", totalReport=True)
+addFigure(None, fig_topo_diff, "Average Topography difference at pick: {}".format(config["analyse_pick"]),"Peak-Analysis", totalReport=True)
 addFigure(None, fig_hist, "Peak histogram","Peak-Analysis", totalReport=True)
 addFigure(None, fig_joint, "Joint average difference wave","Peak-Analysis", totalReport=True)
