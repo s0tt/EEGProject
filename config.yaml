@@ -62,7 +62,7 @@ tf_analyze_pick: ["Pz"]#["Pz", "Cz", "CPz"]
 
 #Decoding Analysis
 decoding_models: ["LogisticRegression", "SVM"]
-model_total_score: "SVM"
+decode_maxiter: 1000
 decode_sampling: 0.005
 decode_scoring: "roc_auc"
 decode_alpha: 0.05

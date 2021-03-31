@@ -12,10 +12,6 @@ import matplotlib.pyplot as plt
 from matplotlib import ticker
 import os
 
-pvalues = []
-time_lst = []
-time_lst_plt = []
-
 subject = handleSubjectArg()
 
 '''calculate binary labels for condition differences'''
@@ -41,11 +37,11 @@ def plotData(x, y, model_type, t_max):
     ax.set_xlim([0, 1])
     ax.set_ylim([0, 1.0])
     ax.set_title(model_type +" scores")
+    ax.axhline(0.5, color="r", linestyle='--', label="random")
     ax.legend()
     ax.grid(alpha=0.25)
     ax.set_axisbelow(True)
     ax.xaxis.set_major_locator(ticker.MultipleLocator(0.1))
-    ax.axhline(0.5, color="r", linestyle='--', label="random")
     #ax.axvline(x=t_max, color="r", label="peak")
     return fig
 
@@ -68,14 +64,14 @@ decoding_types = {
         sklearn.pipeline.Pipeline([
             #("scaler", mne.decoding.Scaler(scalings='mean')),
             ("transform", mne.decoding.Vectorizer()),
-            ("model", sklearn.linear_model.LogisticRegression(solver="lbfgs", max_iter=400)),
+            ("model", sklearn.linear_model.LogisticRegression(solver="lbfgs", max_iter=config["decode_maxiter"])),
             
         ]),
     "SVM":
         sklearn.pipeline.Pipeline([
             ("scaler", sklearn.preprocessing.StandardScaler()), #mne.decoding.Scaler(scalings='mean')
             #("transform", mne.decoding.Vectorizer()),
-            ("model", sklearn.svm.LinearSVC(max_iter=400))
+            ("model", sklearn.svm.LinearSVC(max_iter=config["decode_maxiter"]))
         ])
 }
 

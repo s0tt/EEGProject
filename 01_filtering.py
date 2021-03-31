@@ -26,8 +26,8 @@ raw_filt = raw.copy().filter(
         fir_window='hamming', fir_design='firwin', n_jobs=n_jobs)
 
 #visual check filter before/after
-figs_before.append(raw.plot_psd(show=False))
-figs_after.append(raw_filt.plot_psd(show=False))
+figs_before.append(raw.plot_psd(show=False, fmin=0, fmax=150))
+figs_after.append(raw_filt.plot_psd(show=False, fmin=0, fmax=150))
 f = fname.filt(subject=subject)
 raw_filt.save(f, overwrite=True)
 
