@@ -7,6 +7,7 @@ from matplotlib import pyplot as plt
 from utils import *
 import json, os
 import numpy as np
+from scipy.interpolate import interp1d
 
 def subplotTF(total, evoked, induced):
     mode = "mean" #"percent"
@@ -80,15 +81,12 @@ for cluster, p_value in zip(clusters, cluster_p_values):
     if p_value <= config["alpha"]:
         cluster_array[cluster] = p_value
 
-im1 = ax_test[1].imshow(t_values,extent=[times[0], times[-1], frequencies[0], frequencies[-1]],aspect='auto', origin='lower', cmap='gray')
-im2 = ax_test[2].imshow(cluster_array, extent=[times[0], times[-1], frequencies[0], frequencies[-1]],aspect='auto', origin='lower', cmap='gray')
+im1 = ax_test[1].imshow(t_values,aspect='auto', origin='lower', cmap='gray')
+im2 = ax_test[2].imshow(cluster_array,aspect='auto', origin='lower', cmap='gray')
 fig_test.colorbar(im1, ax=ax_test[1])
+# ax_test[1].set_yscale("log")
+# ax_test[2].set_yscale("log")
+# ax_test[1].ylim([5.0,50.0])
 fig_test.colorbar(im2, ax=ax_test[2])
-
-# for cluster, p_value in zip(clusters, cluster_p_values):
-#     if p_value <= config["alpha"]:
-#         x = cluster[0][0]
-#         y = cluster[1][0]
-#         ax_test[2].text(x, y, "P-Val:"+str(p_value), bbox=dict(fill=False, edgecolor='white', linewidth=2))
 
 addFigure(None, fig_test, "T-test significance over induced average", "Time-Frequency", totalReport=True)
