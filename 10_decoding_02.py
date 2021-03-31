@@ -84,9 +84,7 @@ for model_idx, model_name in enumerate(config["decoding_models"]):
         score_means.append(np.mean(subject_scores))
 
         #calculate p-values over time bins
-        # Non-parametric cluster-level paired t-test
-        # The first dimension should correspond to the difference between paired samples (observations) in two conditions.
-        # https://mne.tools/dev/generated/mne.stats.permutation_cluster_1samp_test.html
+        # 1-sample T-test between subject conditions
         t_stats, p_value = scipy.stats.ttest_1samp(subject_scores, 0.5, alternative='greater')
         p_values.append(p_value)
         if time_idx == len(time_list)-1:

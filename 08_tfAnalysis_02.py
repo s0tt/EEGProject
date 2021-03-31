@@ -84,9 +84,14 @@ for cluster, p_value in zip(clusters, cluster_p_values):
 im1 = ax_test[1].imshow(t_values,aspect='auto', origin='lower', cmap='gray')
 im2 = ax_test[2].imshow(cluster_array,aspect='auto', origin='lower', cmap='gray')
 fig_test.colorbar(im1, ax=ax_test[1])
+# linear scaling of log values in 2d array..could not be fixed yet
 # ax_test[1].set_yscale("log")
 # ax_test[2].set_yscale("log")
 # ax_test[1].ylim([5.0,50.0])
 fig_test.colorbar(im2, ax=ax_test[2])
+ax_test[2].get_yaxis().set_visible(False)
+ax_test[2].get_xaxis().set_visible(False)
+ax_test[1].get_yaxis().set_visible(False)
+ax_test[1].get_xaxis().set_visible(False)
 
 addFigure(None, fig_test, "T-test significance over induced average", "Time-Frequency", totalReport=True)

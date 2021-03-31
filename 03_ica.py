@@ -15,6 +15,7 @@ if config["isPrecomputeMode"]:
     raw_ica = ica.apply(raw, exclude=np.array(bad_components).astype(int))
 
 else:
+    #ICA set random_state=0 for reproducability of manual cleaning results
     ica = mne.preprocessing.ICA(n_components=config["nr_ica_components"], random_state=0, max_iter=800, method=config["ica_method"])
 
     #ica specific high-pass filter with ~1hz to remove slow drifts
