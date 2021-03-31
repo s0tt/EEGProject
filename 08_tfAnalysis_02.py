@@ -45,6 +45,7 @@ for subject in subjects:
     except FileNotFoundError:
         print("Please provide all artefacts from 07_tfAnalysis_01 before running step _02")
 
+#average all subject evokeds, induceds, total TFRs
 difference_total_average = mne.combine_evoked(difference_total_list, weights="equal")
 difference_evoked_average = mne.combine_evoked(difference_evoked_list, weights="equal")
 difference_induced_average = mne.combine_evoked(difference_induced_list, weights="equal")
@@ -77,10 +78,12 @@ frequencies = np.arange(5, 55, 2)
 times = 1000 * difference_induced_average.times
 cluster_array = np.nan * np.ones_like(t_values)
 
+#construct p-value mask
 for cluster, p_value in zip(clusters, cluster_p_values):
     if p_value <= config["alpha"]:
         cluster_array[cluster] = p_value
 
+# plot results add beautify plots
 im1 = ax_test[1].imshow(t_values,aspect='auto', origin='lower', cmap='gray')
 im2 = ax_test[2].imshow(cluster_array,aspect='auto', origin='lower', cmap='gray')
 fig_test.colorbar(im1, ax=ax_test[1])

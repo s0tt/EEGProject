@@ -9,7 +9,7 @@ import json
 import numpy as np
 import scipy
 import matplotlib.pyplot as plt
-from matplotlib import ticker
+from matplotlib.ticker import MultipleLocator
 
 # Decoding analysis Decode the main contrast of the experiment across time
 # RQ: When is information about the conditions in our data available?
@@ -24,14 +24,14 @@ def plotModel(time_means, score_means, p_values, model_name):
     #plot scores
     ax[0].plot(time_means, score_means, label="score")
     ax[0].axhline(y=0.5, color="red", linestyle='--', label="random")  # Horizontal line indicating chance (50%)
-    ax[0].set_xlabel("Time [s]")
+    ax[0].set_xlabel("Time in s")
     ax[0].set_ylabel("Score: "+config["decode_scoring"])
     ax[0].set_xlim([0, 1])
     ax[0].set_title(f"Mean decoding score over subjects")
     ax[0].legend()
     ax[0].grid(alpha=0.25)
     ax[0].set_axisbelow(True)
-    ax[0].xaxis.set_major_locator(ticker.MultipleLocator(0.1))
+    ax[0].xaxis.set_major_locator(MultipleLocator(0.1))
 
 
     #plot p-values
@@ -40,13 +40,13 @@ def plotModel(time_means, score_means, p_values, model_name):
     ax[1].set_xlim([0, 1])
     ax[1].set_ylim([0, 1])
     ax[1].set_title(f"P-value over mean decoding score")
-    ax[1].set_xlabel("Time [s]")
+    ax[1].set_xlabel("Time in s")
     ax[1].set_ylabel("p-values")
     ax[1].legend()
     ax[1].grid(alpha=0.25)
     ax[1].set_axisbelow(True)
-    ax[1].xaxis.set_major_locator(ticker.MultipleLocator(0.05))
-    ax[1].yaxis.set_major_locator(ticker.MultipleLocator(0.1))
+    ax[1].xaxis.set_major_locator(MultipleLocator(0.05))
+    ax[1].yaxis.set_major_locator(MultipleLocator(0.1))
     return fig
 
 subjects = handleSubjectArg(multiSub=True)
@@ -54,11 +54,12 @@ subjects = handleSubjectArg(multiSub=True)
 time_list = np.arange(0, 1.0, config["decode_sampling"])
 model_score_time_array = np.zeros(shape=(len(config["decoding_models"]),len(subjects), len(time_list)))
 
-
+#iterate over subject decoding results
 for subject_idx, subject in enumerate(subjects):
-    #load subject data from step 01
+    #load subject data from decoding step _01
     subject_data = readData(fname.decodingAnalysis(subject=subject))
 
+    #iterate all decoding models
     for model_idx, model in enumerate(config["decoding_models"]):
         assert model in list(subject_data.keys()) #assert that data for model is available
         subject_data_model = subject_data[model]

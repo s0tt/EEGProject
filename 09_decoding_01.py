@@ -62,28 +62,21 @@ selected_models = config["decoding_models"]
 decoding_types = {
     "LogisticRegression": 
         sklearn.pipeline.Pipeline([
-            #("scaler", mne.decoding.Scaler(scalings='mean')),
             ("transform", mne.decoding.Vectorizer()),
             ("model", sklearn.linear_model.LogisticRegression(solver="lbfgs", max_iter=config["decode_maxiter"])),
             
         ]),
     "SVM":
         sklearn.pipeline.Pipeline([
-            ("scaler", sklearn.preprocessing.StandardScaler()), #mne.decoding.Scaler(scalings='mean')
-            #("transform", mne.decoding.Vectorizer()),
+            ("scaler", sklearn.preprocessing.StandardScaler()),
             ("model", sklearn.svm.LinearSVC(max_iter=config["decode_maxiter"]))
         ])
 }
 
-#Note
-#Using this class is different from directly applying sklearn.preprocessing.StandardScaler
-#  or sklearn.preprocessing.RobustScaler offered by scikit-learn. These scale each classification feature, 
-# e.g. each time point for each channel, with mean and standard deviation computed across epochs, whereas mne.decoding.
-# Scaler scales each channel using mean and standard deviation computed across all of its time points and epochs.
-
 data = {}
 pipeline_list = [decoding_types[model] for model in selected_models]
 
+#iterate and fit all decoding models
 for pipeline, model_type in zip(pipeline_list, selected_models):
     
     #generate train/test split

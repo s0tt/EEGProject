@@ -17,8 +17,8 @@ difference_evoked_list = []
 
 def subplotTF(total, evoked, induced):
     mode = "mean" #"percent"
-    baseline = None
-    vmax = 3e-10
+    baseline = None #default MNE baseline provided best results here
+    vmax = 3e-10 #fix the axis scaling for comparability
     vmin = -vmax
     fig, ax = plt.subplots(1, 3, constrained_layout=True, figsize=(24, 8))
     ax[0].title.set_text("TF Total difference at {}".format(config["tf_compute_pick"]))
