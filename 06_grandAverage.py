@@ -70,7 +70,7 @@ l = ax_hist.plot(normed, bins, 'royalblue', linewidth=2)
 
 #RQ: On which ERP-peaks do we find major difference between the conditions
 #statistically test with t-test
-t_values, p_value = stats.ttest_1samp(peak_list, 0.0, alternative="greater")
+t_values, p_value = stats.ttest_1samp(peak_list, 0.0, alternative="two-sided")
 
 
 result_str = "T-test: p-value {} {} {} alpha".format(p_value, ">=" if p_value > config["alpha"] else "<", config["alpha"])
