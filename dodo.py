@@ -1,12 +1,18 @@
-#TODO: Implement pipeline
 from config import config, fname
 
-all_subjects = [str(sub).zfill(3) for sub in range(1, 2)]#40+1)]
+#Pipeline can be executed in parallel with: doit -n [nr_threads] -P thread
+#e.g. in my case: doit -n 8 -P thread
 
-###set which subjects to compute
+#set subjects to analyze with pipeline
+all_subjects = [str(sub).zfill(3) for sub in range(1, 40+1)] #all subjects
+
+#switch between config subjects and manual set subjects
 #subjects = config["subjects_numbers"]
 subjects = all_subjects
-clean_mode = True ##True if clean, else [] --> False is somehow not allowed by Pydoit
+
+##Set: True if clean, else set: [] --> False is somehow not allowed by Pydoit, allows cleaning with cmd: doit clean
+clean_mode = [] #true
+
 
 def task_00_init():
     """Step 00: Init the system"""
@@ -116,7 +122,7 @@ def task_09_decodingAnalysis01():
                 clean=clean_mode
             )
 def task_10_decodingAnalysis02():
-    """Step 09: Decoding analysis across subject with statistics"""
+    """Step 10: Decoding analysis across subject with statistics"""
     return dict(
             targets=[],
             actions=["python 10_decoding_02.py {sub}".format(sub= ' '.join([subject for subject in subjects]))],
