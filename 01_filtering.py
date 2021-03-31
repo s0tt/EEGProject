@@ -28,6 +28,8 @@ raw_filt = raw.copy().filter(
 #visual check filter before/after
 figs_before.append(raw.plot_psd(show=False, fmin=0, fmax=150))
 figs_after.append(raw_filt.plot_psd(show=False, fmin=0, fmax=150))
+figs_before[0].subplots_adjust(bottom=0.15)
+figs_after[0].subplots_adjust(bottom=0.15)
 f = fname.filt(subject=subject)
 raw_filt.save(f, overwrite=True)
 

@@ -6,14 +6,18 @@ pick: "Pz"
 
 #subjects to analyse
 subjects_numbers: 
-  - "002"
-  - "019"
-  - "037"
+   - "002"
+   - "009"
+   - "040"
+# subjects_numbers: 
+#   - "002"
+#   - "019"
+#   - "037"
 
 #execution mode
 isOverwrite: False #overwrite all existing data units with newly generated ones
-isDialogeMode: False #manual mode with opens dialogs windows for example for manual cleaning
-isPrecomputeMode: True #if TRUE: from step 04 on use precomputed semester project data 
+isDialogeMode: True #manual mode with opens dialogs windows for example for manual cleaning
+isPrecomputeMode: False #if TRUE: from step 04 on use precomputed semester project data 
 isSpaceSaveMode: False #When true deletes the .fif of the last step after it was processed --> Save disk space
 
 # Band-pass filter limits
@@ -31,8 +35,8 @@ ica_method: "picard"
 #according to https://mne.tools/dev/auto_tutorials/preprocessing/plot_40_artifact_correction_ica.html
 freq_highpass_ica: 1
 subject_ica_channels: {"002": [1, 9],
-                       "019": [1],
-                       "037": [0]}
+                       "009": [],
+                       "040": [0]}
 
 #Reference
 reference: ["P9", "P10"]
@@ -58,7 +62,7 @@ peak_window: [0.3, 0.6] #[tmin, tmax] time window for peak finding in grand aver
 tf_baseline: None
 tf_vmax: 3 #scaled with ^-10 (e-10 the python way)
 tf_compute_pick: ["eeg"]
-tf_analyze_pick: ["Pz"]#["Pz", "Cz", "CPz"]
+tf_analyze_pick: ["Pz"] #["Pz", "Cz", "CPz"]
 
 #Decoding Analysis
 decoding_models: ["LogisticRegression", "SVM"]

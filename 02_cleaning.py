@@ -14,7 +14,7 @@ def manualCleaning(raw, subject):
     fig = raw.plot(n_channels=len(raw.ch_names))
     plt.show()
 
-    bad_ix = [i for i,a in enumerate(raw.annotations) if a['description']=="BAD_"]
+    bad_ix = [i for i,a in enumerate(raw.annotations) if a['description'].startswith("BAD_")]
 
     #little check to show that anotations were applied correctly
     print("Manual Annotations made: ", raw.annotations)
@@ -29,7 +29,7 @@ def interpolateBads(raw):
     #interpolate bad channels if there exist some
     if len(raw.info['bads']) != 0:
         eeg_data = raw.copy()
-        eeg_data.crop(tmin=0, tmax=5).pick_types(meg=False, eeg=True, exclude=[])
+        eeg_data.crop(tmin=0, tmax=2).pick_types(meg=False, eeg=True, exclude=[])
         eeg_data.annotations.crop(tmin=9, tmax=10) #little trick to remove the annotations from this plot data
         eeg_data_interp = eeg_data.copy().interpolate_bads(reset_bads=False)
 
@@ -85,7 +85,7 @@ if os.path.isfile(f_filter):
             plt.show()
         
         #interpolate bad channels if there exist some
-        interpolateBads(raw)
+        interpolateBads(raw.load_data())
 
     elif not config["isDialogeMode"]:
         raise RuntimeError("No annotations could be obtained. Use either interactiveMode/preComputeMode or provide manual clean file")
