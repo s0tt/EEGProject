@@ -73,7 +73,9 @@ ax_test[0].title.set_text("Across subject induced{}".format(config["tf_analyze_p
 ax_test[1].title.set_text("T-Values of cluster permutation test")
 ax_test[2].title.set_text("Clusters with significant p-values <= " + str(config["alpha"]) + ", Color = P-Value")
 
-difference_induced_average.plot(axes= ax_test[0],picks=config["tf_analyze_pick"], show=False)
+vmax = config["tf_vmax"] * (1e-10)
+vmin = -vmax
+difference_induced_average.plot(axes= ax_test[0],picks=config["tf_analyze_pick"], vmin=vmin,vmax=vmax, show=False)
 frequencies = np.arange(5, 55, 2)
 times = 1000 * difference_induced_average.times
 cluster_array = np.nan * np.ones_like(t_values)

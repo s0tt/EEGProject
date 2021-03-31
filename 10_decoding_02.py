@@ -1,20 +1,9 @@
 from config import config, fname, n_jobs
 from utils import *
-import sklearn.pipeline
-import sklearn
-import sklearn.model_selection
-from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
-import itertools
-import json
 import numpy as np
-import scipy
+from scipy import stats
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MultipleLocator
-
-# Decoding analysis Decode the main contrast of the experiment across time
-# RQ: When is information about the conditions in our data available?
-# https://mne.tools/stable/auto_tutorials/machine-learning/plot_sensors_decoding.html
-
 
 #plot data
 def plotModel(time_means, score_means, p_values, model_name):
@@ -86,7 +75,7 @@ for model_idx, model_name in enumerate(config["decoding_models"]):
 
         #calculate p-values over time bins
         # 1-sample T-test between subject conditions
-        t_stats, p_value = scipy.stats.ttest_1samp(subject_scores, 0.5, alternative='greater')
+        t_stats, p_value = stats.ttest_1samp(subject_scores, 0.5, alternative='greater')
         p_values.append(p_value)
         if time_idx == len(time_list)-1:
             time_means.append(time_point) #end at last timepoint

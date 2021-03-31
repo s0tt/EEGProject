@@ -1,15 +1,13 @@
 from config import config, fname, n_jobs
 from utils import *
 import sklearn.pipeline
-import sklearn
+import sklearn.linear_model
 import sklearn.model_selection
-from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
-import itertools
-import json
+import warnings
+from sklearn.exceptions import ConvergenceWarning
 import numpy as np
-import scipy
 import matplotlib.pyplot as plt
-from matplotlib import ticker
+from matplotlib.ticker import MultipleLocator
 import os
 
 subject = handleSubjectArg()
@@ -17,7 +15,6 @@ subject = handleSubjectArg()
 '''calculate binary labels for condition differences'''
 def getEpochLabels(epochs):
     inverse_dict = {value: key for key, value in epochs.event_id.items()}
-    assert len(epochs.event_id) == len(inverse_dict)
 
     event_keys = epochs.events[:,2]
     events_condition = [inverse_dict[key].split("/")[0] for key in event_keys]
@@ -32,7 +29,7 @@ def getEpochLabels(epochs):
 def plotData(x, y, model_type, t_max):
     fig, ax = plt.subplots(constrained_layout=True, figsize=(16, 9))
     ax.plot(x, y, label="score")
-    ax.set_xlabel("Time (s)")
+    ax.set_xlabel("Time in s")
     ax.set_ylabel("Score: "+config["decode_scoring"])
     ax.set_xlim([0, 1])
     ax.set_ylim([0, 1.0])
@@ -41,7 +38,7 @@ def plotData(x, y, model_type, t_max):
     ax.legend()
     ax.grid(alpha=0.25)
     ax.set_axisbelow(True)
-    ax.xaxis.set_major_locator(ticker.MultipleLocator(0.1))
+    ax.xaxis.set_major_locator(MultipleLocator(0.1))
     #ax.axvline(x=t_max, color="r", label="peak")
     return fig
 
@@ -52,7 +49,7 @@ epochs = mne.read_epochs(fname.epochs(subject=subject))
 #otherwise classifier would be biased to difference in condition occurences
 epochs.equalize_event_counts(["cond1", "cond2"])
 
-epochs.resample(256)
+epochs.resample(256) #resample, normally unneccessary as already done in ERPCORE
 epochs = epochs[["cond1", "cond2"]]
 epochs = epochs.crop(tmin=-0.1, tmax=1.0)
 labels = getEpochLabels(epochs)
@@ -75,6 +72,9 @@ decoding_types = {
 
 data = {}
 pipeline_list = [decoding_types[model] for model in selected_models]
+
+#ignore convergence warning, they are expected with max_iter set too low alternatively set max iterations higher
+warnings.filterwarnings('ignore', r'.*ConvergenceWarning.*')
 
 #iterate and fit all decoding models
 for pipeline, model_type in zip(pipeline_list, selected_models):

@@ -31,7 +31,7 @@ def subplotTF(total, evoked, induced):
 
 
 epochs = mne.read_epochs(fname.epochs(subject=subject))
-epochs.resample(100, npad='auto')
+epochs.resample(256, npad='auto') #resample, normally unneccessary as already done in ERPCORE
 epochs_induced_cond1 = epochs["cond1"].copy().subtract_evoked()
 epochs_induced_cond2 = epochs["cond2"].copy().subtract_evoked()
 
